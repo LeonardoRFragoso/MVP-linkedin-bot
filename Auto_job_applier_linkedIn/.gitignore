@@ -1,12 +1,5 @@
 __pycache__
 .vscode
-
-
 logs/
-chrome_profile_linkedin_bot/
-
 old
-
-
 .venv
-apikeys.py
