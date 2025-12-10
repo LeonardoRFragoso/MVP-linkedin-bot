@@ -8,7 +8,6 @@ chrome_profile_linkedin_bot/
 
 old
 
-config/secrets.py
-config/personals.py
+
 .venv
 apikeys.py
