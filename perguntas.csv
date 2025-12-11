@@ -1,0 +1,359 @@
+﻿,pergunta,resposta,tipo,vaga,empresa
+0,"Código do país [  ""Selecionar opção"", ""Brasil (+55)"", ""Afeganistão (+93)"", ""Albâ...",Yes,select,programador Junior/ pleno,EGGTECH TECNOLOGI
+1,telefone,21980292791,text,programador Junior/ pleno,EGGTECH TECNOLOGI
+2,"E-mail [  ""Selecionar opção"", ""leonardorfragoso@gmail.com"", ]",Yes,select,programador Junior/ pleno,EGGTECH TECNOLOGI
+3,how many years of work experience do you have with dynamic sql?,3,text,Engenheiro de Dados Júnior,Zeta Dado
+4,how many years of work experience do you have with python (programming language)...,3,text,Engenheiro de Dados Júnior,Zeta Dado
+6,"Conhecimento avançado em Kubernets? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,SRE,Elumini Outdoing I
+7,"Você trabalharia em um modelo híbrido? [  ""Sim""<Yes>, ""Não""<No>, ]","""Sim""<Yes>",radio,SRE,Elumini Outdoing I
+8,"Conhecimento em CI/CD: Jenkins e Azure DevOps? [  ""Selecionar opção"", ""Yes"", ""No...",Yes,select,SRE,Elumini Outdoing I
+9,"Aceita remuneração de R$14.500 CLT e benefícios?  [  ""Selecionar opção"", ""Yes"", ...",Yes,select,SRE,Elumini Outdoing I
+11,"Você concorda em se locomover até a localidade da vaga? [  ""Sim""<Yes>, ""Não""<No>...","""Sim""<Yes>",radio,SRE,Elumini Outdoing I
+12,"Aceita remuneração de R$14.500 CLT e benefícios?  [  ""Selecionar opção"", ""Yes"", ...",No,select,SRE,Elumini Outdoing I
+13,"Forte conhecimentos de infra as code: CloudFormation e Terraform? [  ""Selecionar...",Yes,select,SRE,Elumini Outdoing I
+14,"Conhecimento de K8s? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,SRE,Elumini Outdoing I
+17,há quantos anos você já usa python no trabalho?,3,text,SRE,Elumini Outdoing I
+18,atua há quantos anos exclusivamente como sre?,3,text,SRE,Elumini Outdoing I
+19,há quantos anos você já usa amazon web services no trabalho?,3,text,SRE,Elumini Outdoing I
+22,"Você completou o curso Bacharelado? [  ""Sim""<Yes>, ""Não""<No>, ]","""Sim""<Yes>",radio,"Desenvolvedor Pleno - IA, Análise de Dados e Computação Científica",First Decisio
+23,pretensão salarial (pj):,7000,text,Banco de Talentos - Tecnologia,Legitimu
+24,você programa desde qual idade?,3,text,Banco de Talentos - Tecnologia,Legitimu
+25,"Possui disponibilidade para atuar de modo 100% presencial no Brooklin/SP? [  ""Se...",Yes,select,Banco de Talentos - Tecnologia,Legitimu
+26,"Qual seu nível de proficiência em Inglês? [  ""Selecionar opção"", ""Nenhuma"", ""Con...",Yes,select,Banco de Talentos - Tecnologia,Legitimu
+27,direct-salary:pretensão salarial (pj):,7000,text-or-textarea,Banco de Talentos - Tecnologia,Legitimu
+30,experiência com construção de ferramentas utilizando mcp (model context protocol...,3,text,Desenvolvedor Python - GenAI,SO
+31,conhecimento profundo em frameworks para ia generativa há quanto tempo?,"Python, Django, Flask, React, Node.js, PostgreSQL, MongoDB, Docker, Git",text,Desenvolvedor Python - GenAI,SO
+32,"experiência em ambientes cloud (aws, azure ou gcp) há quanto tempo?",3,text,Desenvolvedor Python - GenAI,SO
+33,"experiência com fastapi, flask, django há quanto tempo?",3,text,Desenvolvedor Python - GenAI,SO
+34,"Qual seu nível de proficiência em Inglês? [  ""Selecionar opção"", ""Nenhuma"", ""Con...",Yes,select,Desenvolvedor Python - GenAI,SO
+36,conhecimento profundo em frameworks para ia generativa há quanto tempo?,3,text,Desenvolvedor Python - GenAI,SO
+40,há quantos anos você já usa spring boot no trabalho?,3,text,Pessoa Desenvolvedora JAVA Pleno,Elumini Outdoing I
+41,há quantos anos você já usa postgresql no trabalho?,2,text,Pessoa Desenvolvedora JAVA Pleno,Elumini Outdoing I
+42,há quantos anos você já usa kotlin no trabalho?,3,text,Pessoa Desenvolvedora JAVA Pleno,Elumini Outdoing I
+43,"Tem disponibilidade para atuar 3x por semana na Av. Paulista SP? [  ""Selecionar ...",Yes,select,Pessoa Desenvolvedora JAVA Pleno,Elumini Outdoing I
+47,há quantos anos você já usa kotlin no trabalho?,3,text,Desenvolvedor,PSM COMPAN
+48,há quantos anos você já usa java no trabalho?,0,text,Desenvolvedor,PSM COMPAN
+49,há quantos anos você já usa python no trabalho?,3,text,Desenvolvedor,PSM COMPAN
+50,há quantos anos você já usa javascript no trabalho?,3,text,Desenvolvedor No Code,Four
+51,há quantos anos você já usa python no trabalho?,3,text,Desenvolvedor No Code,Four
+52,há quantos anos você já usa html no trabalho?,3,text,Desenvolvedor No Code,Four
+53,qual é seu nível atual de inglês? 1- básico. 2- intermediário (não falo mas escr...,Intermediário,text,Desenvolvedor full stack,Dexian Brasi
+54,qual é seu nível atual de inglês? 1- básico. 2- intermediário (não falo mas escr...,2,text,Desenvolvedor full stack,Dexian Brasi
+55,há quantos anos você já usa web scraping no trabalho?,3,text,Desenvolvedor full stack,Dexian Brasi
+58,há quantos anos você já usa python no trabalho?,3,text,Desenvolvedor full stack,Dexian Brasi
+59,há quantos anos você já usa react.js no trabalho?,1,text,Desenvolvedor full stack,Dexian Brasi
+60,qual sua expectativa salarial clt?,5000,text,AI Agent Developer Jr,Mercado Eletrônic
+62,direct-salary:qual seria a sua pretensão salarial para essa oportunidade?,5000,text-or-textarea,Engenheiro(a) de Software Junior,Gring
+63,qual seria a sua pretensão salarial para essa oportunidade?,5000,text,Engenheiro(a) de Software Junior,Gring
+64,"Possui disponibilidade para atuar no fuso horario da Europa 06 - 15 hrs? [  ""Sel...",Yes,select,Desenvolvedor(a) OutSystems Júnior,Inetu
+65,qual a sua pretensão taxa/hora pj?,5000,text,Desenvolvedor(a) OutSystems Júnior,Inetu
+66,direct-salary:qual a sua pretensão taxa/hora pj?,5000,text-or-textarea,Desenvolvedor(a) OutSystems Júnior,Inetu
+68,possui quanto tempo de experiência como desenvolvedor?,3,text,Desenvolvedor(a) OutSystems Júnior,Inetu
+69,"Possui inglês para conversação? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Desenvolvedor(a) OutSystems Júnior,Inetu
+71,possui quanto tempo de experiência com outsystems?,3,text,Desenvolvedor(a) OutSystems Júnior,Inetu
+74,qual a sua pretensão salarial para contratação clt?,5000,text,Desenvolvedor Pleno (GIS),Imagem Geosistema
+75,há quantos anos você já usa sig (sistema de informação geográfica) no trabalho?,3,text,Desenvolvedor Pleno (GIS),Imagem Geosistema
+77,há quantos anos você já usa python no trabalho?,3,text,Desenvolvedor Pleno (GIS),Imagem Geosistema
+78,direct-salary:qual a sua pretensão salarial para contratação clt?,5000,text-or-textarea,Desenvolvedor Pleno (GIS),Imagem Geosistema
+79,"E-mail [  ""Select an option"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Python Engineer - Remote,INDI Staffing Service
+80,"Phone country code [ ""List of phone country codes"" ]",Yes,select,Python Engineer - Remote,INDI Staffing Service
+81,telefone,21980292791,text,Python Engineer - Remote,INDI Staffing Service
+82,salary expectation,5000,text,Engenheiro de IA - Junior,Bluegroun
+83,"What is your level of proficiency in English? [  ""Select an option"", ""None"", ""Co...",Yes,select,Engenheiro de IA - Junior,Bluegroun
+84,direct-salary:salary expectation,5000,text-or-textarea,Engenheiro de IA - Junior,Bluegroun
+85,"Código do país [  ""Selecionar opção"", ""Brasil (+55)"", ""Afeganistão (+93)"", ""Albâ...",Yes,select,Desenvolvedor de jogos,Erole Marketing Agenc
+86,"E-mail [  ""Selecionar opção"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Desenvolvedor de jogos,Erole Marketing Agenc
+87,telefone,21980292791,text,Desenvolvedor de jogos,Erole Marketing Agenc
+88,há quantos anos você já usa sql no trabalho?,3,text,Desenvolvedor Backend (Node),Mutan
+89,há quantos anos você já usa google cloud platform (gcp) no trabalho?,1,text,Desenvolvedor Backend (Node),Mutan
+90,"esta de acordo com contrato pessoa jurídica por tempo indeterminado? [  ""Selecio...",Yes,select,Desenvolvedor Python Pleno,Capitani Grou
+92,direct-cicd:há quantos anos você já usa integração e entrega contínuas (ci/cd) n...,3,text,Desenvolvedor Python Pleno,Capitani Grou
+93,há quantos anos você já usa python no trabalho?,3,text,Desenvolvedor Python Pleno,Capitani Grou
+94,há quantos anos você já usa integração e entrega contínuas (ci/cd) no trabalho?,3,text,Desenvolvedor Python Pleno,Capitani Grou
+95,"Você trabalharia presencialmente? [  ""Sim""<Yes>, ""Não""<No>, ]","""Sim""<Yes>",radio,Desenvolvedor Python Pleno,Capitani Grou
+96,quantos anos de experiência com tecnologia da informação você tem?,7,text,Desenvolvedor Python Pleno,Capitani Grou
+97,"E-mail [  ""Select an option"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Junior Python Developer - Remote,INDI Staffing Service
+98,"Phone country code [ ""List of phone country codes"" ]",Yes,select,Junior Python Developer - Remote,INDI Staffing Service
+99,telefone,21980292791,text,Junior Python Developer - Remote,INDI Staffing Service
+100,"Você mora em São Paulo - SP? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Backend Pleno,Hiflex Grou
+101,Aceita trabalho hibrido (2 Dias Presenciais / 3 Dias Remotos) no cliente em São ...,No,select,Backend Pleno,Hiflex Grou
+103,há quantos anos você já usa python no trabalho?,3,text,Backend Pleno,Hiflex Grou
+104,"Alguns clientes nos exigem a checagem de antecedentes. Você concorda? [  ""Seleci...",Yes,select,Backend Pleno,Hiflex Grou
+105,há quantos anos você já usa sql no trabalho?,3,text,Backend Pleno,Hiflex Grou
+106,Aceita trabalho hibrido (2 Dias Presenciais / 3 Dias Remotos) no cliente em São ...,Yes,select,Backend Pleno,Hiflex Grou
+108,"direct-salary:qual seria sua pretensão salarial, considerando contratação clt + ...",5000,text-or-textarea,Engenheiro de Dados - Remoto,Getronic
+109,há quanto tempo você atua como engenheiro de dados?,3,text,Engenheiro de Dados - Remoto,Getronic
+111,"qual seria sua pretensão salarial, considerando contratação clt + benefícios?",5000,text,Engenheiro de Dados - Remoto,Getronic
+112,"Voce trabalharia presencialmente na Vila Olimpia? [  ""Selecionar opção"", ""Yes"", ...",Yes,select,Desenvolvedor,MUV Capita
+113,qual a sua pretensão salarial?,5000,text,Desenvolvedor,MUV Capita
+114,"Voce trabalharia presencialmente na Vila Olimpia? [  ""Selecionar opção"", ""Yes"", ...",No,select,Desenvolvedor,MUV Capita
+115,direct-salary:qual a sua pretensão salarial?,5000,text-or-textarea,Desenvolvedor,MUV Capita
+116,há quantos anos você já usa python no trabalho?,3,text,Engenheiro de dados - Finops,PSM COMPAN
+117,há quantos anos você já usa finop no trabalho?,3,text,Engenheiro de dados - Finops,PSM COMPAN
+119,há quantos anos você já usa amazon web services no trabalho?,3,text,Engenheiro de dados - Finops,PSM COMPAN
+120,Possui quantos anos de experiência profissional com mensageria (Kafka/RabbitMQ/S...,No,select,Desenvolvedor(a) FullStack Pleno (Go/Angular),Code Grou
+121,possui quanto tempo de experiência profissional com cloud (aws)?,3,text,Desenvolvedor(a) FullStack Pleno (Go/Angular),Code Grou
+122,qual sua pretensão salarial?,5000,text,Desenvolvedor(a) FullStack Pleno (Go/Angular),Code Grou
+123,possui quanto tempo de experiência profissional com bancos relacionais e não rel...,3,text,Desenvolvedor(a) FullStack Pleno (Go/Angular),Code Grou
+124,possui quantos anos de experiência profissional com angular?,3,text,Desenvolvedor(a) FullStack Pleno (Go/Angular),Code Grou
+126,direct-salary:qual sua pretensão salarial?,5000,text-or-textarea,Desenvolvedor(a) FullStack Pleno (Go/Angular),Code Grou
+127,Possui quantos anos de experiência profissional com mensageria (Kafka/RabbitMQ/S...,Yes,select,Desenvolvedor(a) FullStack Pleno (Go/Angular),Code Grou
+129,possui quantos anos de experiência profissional com go?,3,text,Desenvolvedor(a) FullStack Pleno (Go/Angular),Code Grou
+132,há quantos anos você já usa java no trabalho?,0,text,Engenheiro (a) de Software Python Pleno,PDtec | Uma empresa B
+133,há quantos anos você já usa python no trabalho?,3,text,Engenheiro (a) de Software Python Pleno,PDtec | Uma empresa B
+134,há quantos anos você já usa api rest no trabalho?,1,text,Engenheiro (a) de Software Python Pleno,PDtec | Uma empresa B
+135,qual e sua expectativa de taxa pj em reais por hora?,3,text,Desenvolvedor/a de IA (PJ | Híbrido),Hay
+136,possui quanto tempo de atuação com rpa?,3,text,Desenvolvedor/a de IA (PJ | Híbrido),Hay
+137,possui quantos anos de automação com power platforms?,3,text,Desenvolvedor/a de IA (PJ | Híbrido),Hay
+138,possui quantos anos de atuação com desenvolvimento com copilot studio ou ferrame...,3,text,Desenvolvedor/a de IA (PJ | Híbrido),Hay
+141,"Possui disponibilidade para atuação híbrida em Bela Vista -SP? [  ""Select an opt...",Yes,select,Desenvolvedor/a de IA (PJ | Híbrido),Hay
+145,Você tem experiência prática com Clean Architecture ou outra abordagem de modula...,Yes,select,Desenvolvedor(a) Python - (Sênior),CWI Softwar
+147,qual sua pretensão salarial em formato clt? (só contratamos nesse modelo),5000,text,Desenvolvedor(a) Python - (Sênior),CWI Softwar
+148,direct-salary:qual sua pretensão salarial em formato clt? (só contratamos nesse ...,5000,text-or-textarea,Desenvolvedor(a) Python - (Sênior),CWI Softwar
+149,"Possui experiência programação assíncrona (asyncio/aiohttp)? [  ""Selecionar opçã...",Yes,select,Desenvolvedor(a) Python - (Sênior),CWI Softwar
+151,direct-salary:qual sua expectativa de remuneração para essa posição híbrida em s...,5000,text-or-textarea,Backend engineer,K2 Solution
+152,Você se sente à vontade em equilibrar a manutenção de sistemas com o desenvolvim...,Yes,select,Backend engineer,K2 Solution
+153,Você tem experiência em projetar APIs RESTful e serviços escaláveis com Node.js ...,Yes,select,Backend engineer,K2 Solution
+154,Você prioriza a aplicação de boas práticas como testes automatizados e código li...,Yes,select,Backend engineer,K2 Solution
+158,qual sua expectativa de remuneração para essa posição híbrida em sp - av. paulis...,5000,text,Backend engineer,K2 Solution
+159,"Qual seu nível de proficiência em Inglês? [  ""Selecionar opção"", ""Nenhuma"", ""Con...",Yes,select,Desenvolvedor full stack,Hay
+160,"Você trabalharia em um modelo híbrido? [  ""Sim""<Yes>, ""Não""<No>, ]","""Sim""<Yes>",radio,Desenvolvedor full stack,Hay
+161,quantos anos de experiência com jurídico você tem?,3,text,Programador de Automação – Python + N8N,"Tortoro, Madureira & Ragazzi Advogado"
+163,há quantos anos você já usa python no trabalho?,3,text,Programador de Automação – Python + N8N,"Tortoro, Madureira & Ragazzi Advogado"
+164,qual a sua pretensão salarial para contratação clt?,5000,text,Desenvolvedor Júnior (Microsoft Power Platform),Imagem Geosistema
+165,há quantos anos você já usa microsoft power platform no trabalho?,3,text,Desenvolvedor Júnior (Microsoft Power Platform),Imagem Geosistema
+166,há quantos anos você já usa microsoft power automate no trabalho?,3,text,Desenvolvedor Júnior (Microsoft Power Platform),Imagem Geosistema
+169,direct-salary:qual a sua pretensão salarial para contratação clt?,5000,text-or-textarea,Desenvolvedor Júnior (Microsoft Power Platform),Imagem Geosistema
+170,"Código do país [  ""Selecionar opção"", ""Brasil (+55)"", ""Afeganistão (+93)"", ""Albâ...",Yes,select,Desenvolvedor Python,QiBi
+171,telefone,21980292791,text,Desenvolvedor Python,QiBi
+172,"E-mail [  ""Selecionar opção"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Desenvolvedor Python,QiBi
+176,há quantos anos você já usa banco de dados oracle no trabalho?,3,text,Python Developer,Tata Consultancy Service
+177,há quantos anos você já usa sql no trabalho?,3,text,Python Developer,Tata Consultancy Service
+178,há quantos anos você já usa soap no trabalho?,3,text,Python Developer,Tata Consultancy Service
+181,há quantos anos você já usa java no trabalho?,0,text,Desenvolvedor Java,Empresa Confidencia
+182,há quantos anos você já usa amazon web services no trabalho?,3,text,Desenvolvedor Java,Empresa Confidencia
+183,há quantos anos você já usa sql no trabalho?,3,text,Desenvolvedor Java,Empresa Confidencia
+184,qual a sua pretensão salarial?,5000,text,Full Stack Developer,Kamin
+185,direct-salary:qual a sua pretensão salarial?,5000,text-or-textarea,Full Stack Developer,Kamin
+186,"Você trabalharia remotamente? [  ""Sim""<Yes>, ""Não""<No>, ]","""Sim""<Yes>",radio,Desenvolvedor full stack,Exade
+187,há quantos anos você já usa quarkus no trabalho?,3,text,Desenvolvedor full stack,Exade
+188,há quantos anos você já usa desenvolvimento full stack no trabalho?,3,text,Desenvolvedor full stack,Exade
+189,"Você tem experiência em Fix Protocol (Protocolo Fixo) [  ""Selecionar opção"", ""Ye...",Yes,select,Desenvolvedor full stack,Exade
+190,há quantos anos você já usa java no trabalho?,0,text,Desenvolvedor full stack,Exade
+194,qual seria sua pretensão salarial como clt ?,5000,text,Pessoa Desenvolvedora Full Stack PL,Cogna Educaçã
+195,direct-salary:qual seria sua pretensão salarial como clt ?,5000,text-or-textarea,Pessoa Desenvolvedora Full Stack PL,Cogna Educaçã
+196,"Você já atuou com o Headless CMS ou ferramentas similares ? [  ""Selecionar opção...",No,select,Pessoa Desenvolvedora Full Stack PL,Cogna Educaçã
+197,"Você já atuou com o Headless CMS ou ferramentas similares ? [  ""Selecionar opção...",Yes,select,Pessoa Desenvolvedora Full Stack PL,Cogna Educaçã
+198,direct-salary:please share your monthly salary expectations in usd for a contrac...,5000,text-or-textarea,Back End Developer Node.js - 4294616808,LaTeam Partner
+199,how many years of work experience do you have with node.js?,1,text,Back End Developer Node.js - 4294616808,LaTeam Partner
+200,how many years of work experience do you have with blockchain?,3,text,Back End Developer Node.js - 4294616808,LaTeam Partner
+201,how many years of work experience do you have with cryptocurrency?,1,text,Back End Developer Node.js - 4294616808,LaTeam Partner
+202,please share your monthly salary expectations in usd for a contractor role,5000,text,Back End Developer Node.js - 4294616808,LaTeam Partner
+204,"Have you built interactive features with frameworks like React, Angular, and Vue...",Yes,select,Desenvolvedor full stack,EcommIT Integrated Solution
+205,"Entrevista e dia a dia serão em inglês, se sente confortável com o idioma? [  ""S...",No,select,Desenvolvedor full stack,EcommIT Integrated Solution
+206,"Have you designed and implemented server-side logic using Python, Java and Node....",Yes,select,Desenvolvedor full stack,EcommIT Integrated Solution
+207,"Experience in designing, developing, and maintaining both front-end and back-end...",Yes,select,Desenvolvedor full stack,EcommIT Integrated Solution
+208,"Have you built interactive features with frameworks like React, Angular, and Vue...",No,select,Desenvolvedor full stack,EcommIT Integrated Solution
+209,"Have you built and maintained APIs and managed database interactions? [  ""Seleci...",Yes,select,Desenvolvedor full stack,EcommIT Integrated Solution
+210,há quantos anos você já usa javascript no trabalho?,3,text,Desenvolvedor full stack,EcommIT Integrated Solution
+211,"Qual seu nível de proficiência em Inglês? [  ""Selecionar opção"", ""Nenhuma"", ""Con...",Yes,select,Desenvolvedor full stack,EcommIT Integrated Solution
+212,há quantos anos você já usa css no trabalho?,3,text,Desenvolvedor full stack,EcommIT Integrated Solution
+213,há quantos anos você já usa html no trabalho?,3,text,Desenvolvedor full stack,EcommIT Integrated Solution
+215,"Entrevista e dia a dia serão em inglês, se sente confortável com o idioma? [  ""S...",Yes,select,Desenvolvedor full stack,EcommIT Integrated Solution
+218,"Código do país [  ""Selecionar opção"", ""Brasil (+55)"", ""Afeganistão (+93)"", ""Albâ...",Yes,select,Pessoa Engenheira de Software,Onz
+219,"E-mail [  ""Selecionar opção"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Pessoa Engenheira de Software,Onz
+220,telefone,21980292791,text,Pessoa Engenheira de Software,Onz
+221,qual é a sua pretensão salarial para uma contratação no regime pj?,7000,text,Desenvolvedor(a) Full Stack,SysManage
+222,"Você tem experiência com microsserviços utilizando Spring ou Helidon MP? [  ""Sel...",Yes,select,Desenvolvedor(a) Full Stack,SysManage
+223,"Você compreende o protocolo HTTP e o padrão REST, incluindo o uso de Jersey ou R...",Yes,select,Desenvolvedor(a) Full Stack,SysManage
+224,"Você utiliza controle de versão com Git ou SVN? [  ""Selecionar opção"", ""Yes"", ""N...",Yes,select,Desenvolvedor(a) Full Stack,SysManage
+225,direct-salary:qual é a sua pretensão salarial para uma contratação no regime pj?,7000,text-or-textarea,Desenvolvedor(a) Full Stack,SysManage
+226,"Você possui experiência com com frameworks frontend como React ou Angular? [  ""S...",No,select,Desenvolvedor(a) Full Stack,SysManage
+227,"Você possui conhecimento em JAX-RS (Jersey) e APIs REST? [  ""Selecionar opção"", ...",Yes,select,Desenvolvedor(a) Full Stack,SysManage
+228,"Você já utilizou frameworks para microserviços como Helidon, MicroProfile, Micro...",No,select,Desenvolvedor(a) Full Stack,SysManage
+229,"Você já utilizou frameworks para microserviços como Helidon, MicroProfile, Micro...",Yes,select,Desenvolvedor(a) Full Stack,SysManage
+230,"Você possui experiência com com frameworks frontend como React ou Angular? [  ""S...",Yes,select,Desenvolvedor(a) Full Stack,SysManage
+231,"Você possui experiência com Angular 6 ou superior, React, Vue, HTML, CSS e JavaS...",Yes,select,Desenvolvedor(a) Full Stack,SysManage
+237,você tem quantos anos de experiência com front end?,3,text,Desenvolvedor de front-end,Stefanini Brasi
+239,qual a sua pretensão salarial no clt?,5000,text,Desenvolvedor de front-end,Stefanini Brasi
+240,direct-salary:qual a sua pretensão salarial no clt?,5000,text-or-textarea,Desenvolvedor de front-end,Stefanini Brasi
+241,há quantos anos você já usa xml no trabalho?,1,text,Desenvolvedor(a) NodeJs,SIS Innov & Tec
+242,há quantos anos você já usa java no trabalho?,0,text,Desenvolvedor(a) NodeJs,SIS Innov & Tec
+243,há quantos anos você já usa node.js no trabalho?,1,text,Desenvolvedor(a) NodeJs,SIS Innov & Tec
+244,direct-salary:por favor qual sua pretensão salarial mensal?,5000,text-or-textarea,Desenvolvedor Front End,FCB Health Brazil | An IPG Health Compan
+245,por favor qual sua pretensão salarial mensal?,5000,text,Desenvolvedor Front End,FCB Health Brazil | An IPG Health Compan
+246,"Você possui inglês avançado? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Full Stack Developer (Python and React.js),Mouts T
+247,qual sua expectativa salarial pj?,7000,text,Full Stack Developer (Python and React.js),Mouts T
+248,"Você possui experiência sólida com React.js? [  ""Selecionar opção"", ""Yes"", ""No"",...",Yes,select,Full Stack Developer (Python and React.js),Mouts T
+249,há quantos anos você já usa python no trabalho?,3,text,Full Stack Developer (Python and React.js),Mouts T
+253,"Do you have professional experience working with both, React and Node? [  ""Selec...",Yes,select,"Full Stack Engineer, Brazil",Optibu
+255,informe o valor de sua pretensão salarial como clt.,5000,text,Desenvolvedor Web Pl,Up Brasi
+256,direct-salary:informe o valor de sua pretensão salarial como clt.,5000,text-or-textarea,Desenvolvedor Web Pl,Up Brasi
+257,how many years of work experience do you have with data engineering?,3,text,Data Engineer,Brick Abod
+258,"What is your level of proficiency in English? [  ""Select an option"", ""None"", ""Co...",Yes,select,Data Engineer,Brick Abod
+259,how many years of work experience do you have with python (programming language)...,2,text,Data Engineer,Brick Abod
+261,"Você possui conhecimento em banco de dados relacionais? [  ""Selecionar opção"", ""...",Yes,select,Desenvolvedor full stack,Tata Consultancy Service
+262,há quanto tempo você trabalha com jboss?,3,text,Desenvolvedor full stack,Tata Consultancy Service
+263,"há quanto tempo você atua com javascript/typescript e frameworks como angular, r...",3,text,Desenvolvedor full stack,Tata Consultancy Service
+264,há quantos anos você já usa spring boot no trabalho?,3,text,Desenvolvedor full stack,Tata Consultancy Service
+266,há quantos anos você já usa java no trabalho?,0,text,Desenvolvedor full stack,Tata Consultancy Service
+269,"Are you comfortable working in a remote setting? [  ""Yes""<Yes>, ""No""<No>, ]","""Yes""<Yes>",radio,Full Stack Developer,DRISHTICON In
+270,"What is your level of proficiency in English? [  ""Select an option"", ""None"", ""Co...",Yes,select,Full Stack Developer,DRISHTICON In
+271,"Você possui conhecimento em Java com Spring Framework? [  ""Selecionar opção"", ""Y...",Yes,select,Desenvolvedor(a) Java,SysManage
+272,qual é a sua pretensão salarial para uma contratação no regime pj?,7000,text,Desenvolvedor(a) Java,SysManage
+273,"Você possui experiência com PL/SQL? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Desenvolvedor(a) Java,SysManage
+274,direct-salary:qual é a sua pretensão salarial para uma contratação no regime pj?,7000,text-or-textarea,Desenvolvedor(a) Java,SysManage
+275,"Você possui conhecimento em Inteligência Artificial (IA)? [  ""Selecionar opção"",...",Yes,select,Desenvolvedor(a) Java,SysManage
+277,"Você possui experiência com Banco de Dados Oracle? [  ""Selecionar opção"", ""Yes"",...",Yes,select,Desenvolvedor(a) Java,SysManage
+278,"Você possui noções de desenvolvimento Front-End com Angular? [  ""Selecionar opçã...",Yes,select,Desenvolvedor(a) Java,SysManage
+279,"Caso seja residente do Rio de Janeiro, teria disponibilidade para o regime híbri...",Yes,select,Desenvolvedor(a) Java,SysManage
+285,possui quanto tempo de experiência com angular?,3,text,Desenvolvedor de front-end Angular,Stefanini Brasi
+286,"Aceita hibrido 3 x na semana? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Desenvolvedor de front-end Angular,Stefanini Brasi
+287,"Aceita atuar hibrido em sp 3x na semana? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Desenvolvedor de front-end Angular,Stefanini Brasi
+288,"Possui experiência em sistema bancário ? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Desenvolvedor de front-end Angular,Stefanini Brasi
+289,qual sua pretensão salarial clt?,5000,text,Desenvolvedor de front-end Angular,Stefanini Brasi
+290,direct-salary:qual sua pretensão salarial clt?,5000,text-or-textarea,Desenvolvedor de front-end Angular,Stefanini Brasi
+295,"Já utilizou serviços AWS (Lambda, API Gateway, RDS, ECS, EKS)?  [  ""Selecionar o...",Yes,select,Desenvolvedor Full Stack Java Pleno,Code Grou
+296,Possui disponibilidade para atuar híbrido 2x na semana na região da Faria Lima? ...,Yes,select,Desenvolvedor Full Stack Java Pleno,Code Grou
+297,Possui experiência com microsserviços ou migração de monólitos para microsserviç...,Yes,select,Desenvolvedor Full Stack Java Pleno,Code Grou
+300,há quantos anos você já usa java no trabalho?,0,text,Desenvolvedor Full Stack Java Pleno,Code Grou
+302,há quantos anos você já usa java no trabalho?,0,text,Desenvolvedor Java,Four
+303,há quantos anos você já usa rest (transferência de estado representacional ) no ...,1,text,Desenvolvedor Java,Four
+304,quantos anos de experiência com tecnologia da informação você tem?,7,text,Desenvolvedor Java,Four
+305,"Ja teve experiencias anteriores atuando em projetos internacionais?  [  ""Selecio...",Yes,select,Desenvolvedor Fullstack Senior (Node/React),Jaya Tec
+306,"Ja teve experiencias anteriores atuando em projetos internacionais?  [  ""Selecio...",No,select,Desenvolvedor Fullstack Senior (Node/React),Jaya Tec
+307,"Possui ingles fluente?  [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Desenvolvedor Fullstack Senior (Node/React),Jaya Tec
+308,há quantos anos você já usa react.js no trabalho?,1,text,Desenvolvedor Fullstack Senior (Node/React),Jaya Tec
+309,há quantos anos você já usa node.js no trabalho?,1,text,Desenvolvedor Fullstack Senior (Node/React),Jaya Tec
+310,"para uma contratação na modalidade contractor e remuneração em dolar, qual a sua...",5000,text,Desenvolvedor Fullstack Senior (Node/React),Jaya Tec
+311,direct-salary:para uma contratação na modalidade contractor e remuneração em dol...,5000,text-or-textarea,Desenvolvedor Fullstack Senior (Node/React),Jaya Tec
+316,"What is your level of proficiency in English? [  ""Select an option"", ""None"", ""Co...",Yes,select,Web Developer,International Digital Partner
+317,how many years of work experience do you have with strapi?,3,text,Web Developer,International Digital Partner
+318,how many years of work experience do you have with react.js?,1,text,Web Developer,International Digital Partner
+320,"Tem disponibilidade e interesse em atuar como PJ (prestador de serviços)? [  ""Se...",Yes,select,Desenvolvedor Full Stack,Smart Sk
+321,"Tem disponibilidade e interesse em trabalhar no formato 100% presencial, no Cent...",Yes,select,Desenvolvedor Full Stack,Smart Sk
+322,direct-salary:qual sua pretensão para atuar no modelo pj? (12 nfs),5000,text-or-textarea,Desenvolvedor Full Stack,Smart Sk
+323,há quantos anos você já usa javascript no trabalho?,3,text,Desenvolvedor Full Stack,Smart Sk
+324,há quantos anos você já usa react.js no trabalho?,1,text,Desenvolvedor Full Stack,Smart Sk
+325,há quantos anos você já usa node.js no trabalho?,1,text,Desenvolvedor Full Stack,Smart Sk
+328,qual sua pretensão para atuar no modelo pj? (12 nfs),5000,text,Desenvolvedor Full Stack,Smart Sk
+329,há quantos anos você já usa react no trabalho?,3,text,Desenvolvedor(a) Full Stack Pleno/Sênior – Spring Boot e React,ION Sistema
+330,há quantos anos você já usa spring boot no trabalho?,3,text,Desenvolvedor(a) Full Stack Pleno/Sênior – Spring Boot e React,ION Sistema
+331,qual a sua pretensão salarial? (contratação clt),5000,text,Desenvolvedor(a) Full Stack Pleno/Sênior – Spring Boot e React,ION Sistema
+332,direct-salary:qual a sua pretensão salarial? (contratação clt),5000,text-or-textarea,Desenvolvedor(a) Full Stack Pleno/Sênior – Spring Boot e React,ION Sistema
+334,há quantos anos você já usa sql no trabalho?,3,text,Software Engineer Full Stack Pleno (Foco Front-end),tmdigital.a
+335,há quantos anos você já usa desenvolvimento web no trabalho?,3,text,Software Engineer Full Stack Pleno (Foco Front-end),tmdigital.a
+336,há quantos anos você já usa programação (computação) no trabalho?,3,text,Software Engineer Full Stack Pleno (Foco Front-end),tmdigital.a
+339,"What is your level of proficiency in Portuguese? [  ""Select an option"", ""None"", ...",Professional,select,RPA Developer,knowmad mood Portuga
+340,how many years of work experience do you have with uipath?,3,text,RPA Developer,knowmad mood Portuga
+341,"Are you legally authorized to work in Brazil? [  ""Yes""<Yes>, ""No""<No>, ]",Yes,radio,RPA Developer,knowmad mood Portuga
+342,how many years of work experience do you have with robotic process automation (r...,2,text,RPA Developer,knowmad mood Portuga
+343,"What is your level of proficiency in Portuguese? [  ""Select an option"", ""None"", ...",Yes,select,RPA Developer,knowmad mood Portuga
+345,Essa vaga é 100% presencial no Centro do Rio de Janeiro. Tem disponibilidade e c...,Yes,select,Engenheiro eletrônico - Raspberry Pi,K2 Solution
+346,qual sua pretensão salarial?,5000,text,Engenheiro eletrônico - Raspberry Pi,K2 Solution
+347,direct-salary:qual sua pretensão salarial?,5000,text-or-textarea,Engenheiro eletrônico - Raspberry Pi,K2 Solution
+348,Você já desenvolveu sistemas embarcados utilizando Raspberry Pi ou NVIDIA Jetson...,Yes,select,Engenheiro eletrônico - Raspberry Pi,K2 Solution
+349,"Já trabalhou com protocolos de comunicação como I2C, SPI, UART ou CAN em projeto...",Yes,select,Engenheiro eletrônico - Raspberry Pi,K2 Solution
+351,"Já trabalhou com protocolos de comunicação como I2C, SPI, UART ou CAN em projeto...",No,select,Engenheiro eletrônico - Raspberry Pi,K2 Solution
+352,Possui experiência em programação com Python aplicada a hardware ou automação? [...,Yes,select,Engenheiro eletrônico - Raspberry Pi,K2 Solution
+355,quanto tempo de experiência você tem trabalhando com as seguintes linguagens: la...,3,text,Engenheiro de controle,Woodgrove Technologies Inc
+356,"quanto tempo de experiência, em anos, você tem utilizando os sistemas: plcs, sca...",3,text,Engenheiro de controle,Woodgrove Technologies Inc
+357,"Disponibilidade para viajar a trabalho, inclusive para o exterior? [  ""Seleciona...",Yes,select,Engenheiro de controle,Woodgrove Technologies Inc
+358,"Qual seu nível de proficiência em Inglês? [  ""Selecionar opção"", ""Nenhuma"", ""Con...",Yes,select,Engenheiro de controle,Woodgrove Technologies Inc
+359,"Você completou o curso Bacharelado? [  ""Sim""<Yes>, ""Não""<No>, ]","""Sim""<Yes>",radio,Engenheiro de controle,Woodgrove Technologies Inc
+363,"Você trabalharia em um modelo híbrido? [  ""Sim""<Yes>, ""Não""<No>, ]","""Sim""<Yes>",radio,Engenheiro de controle,Woodgrove Technologies Inc
+364,"Possui inglês fluente? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Quality Automation Engineer,ART IT Intelligent Technolog
+365,"Possui inglês fluente? [  ""Selecionar opção"", ""Yes"", ""No"", ]",No,select,Quality Automation Engineer,ART IT Intelligent Technolog
+366,"Possui disponibilidade para atuar em Portugal? [  ""Selecionar opção"", ""Yes"", ""No...",Yes,select,Quality Automation Engineer,ART IT Intelligent Technolog
+368,telefone,21980292791,text,Programador C em Linux – Sistema SAS (Slot Accounting System),Spin Code
+369,"E-mail [  ""Selecionar opção"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Programador C em Linux – Sistema SAS (Slot Accounting System),Spin Code
+370,"Código do país [  ""Selecionar opção"", ""Brasil (+55)"", ""Afeganistão (+93)"", ""Albâ...",Yes,select,Programador C em Linux – Sistema SAS (Slot Accounting System),Spin Code
+371,telefone,21980292791,text,Software Developer Pleno,Void
+372,"E-mail [  ""Selecionar opção"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Software Developer Pleno,Void
+373,"Código do país [  ""Selecionar opção"", ""Brasil (+55)"", ""Afeganistão (+93)"", ""Albâ...",Yes,select,Software Developer Pleno,Void
+374,"Você trabalharia presencialmente? [  ""Sim""<Yes>, ""Não""<No>, ]","""Sim""<Yes>",radio,Desenvolvedor Full-Stack (Presencial),NineTwo Performanc
+375,"Trabalha bem em equipe e tem produtividade alta? [  ""Selecionar opção"", ""Yes"", ""...",Yes,select,"Desenvolvedor(a) Fullstack Node + React (PJ, Presencial)",Clinfec - Clínica de Infectologia e Centro de Infusã
+376,"Tem disponibilidade para vaga 100% presencial em Águas Claras? [  ""Selecionar op...",Yes,select,"Desenvolvedor(a) Fullstack Node + React (PJ, Presencial)",Clinfec - Clínica de Infectologia e Centro de Infusã
+378,"quantos anos de experiência como desenvolvedor fullstack com react.js, node.js?",3,text,"Desenvolvedor(a) Fullstack Node + React (PJ, Presencial)",Clinfec - Clínica de Infectologia e Centro de Infusã
+379,"Tem experiência sólida com React.js, node.js? [  ""Selecionar opção"", ""Yes"", ""No""...",Yes,select,"Desenvolvedor(a) Fullstack Node + React (PJ, Presencial)",Clinfec - Clínica de Infectologia e Centro de Infusã
+383,direct-salary:qual sua pretensão salarial de acordo com o modelo clt?,5000,text-or-textarea,Backend Developer (JAVA) #986218,Dexian Brasi
+384,há quantos anos você já usa java no trabalho?,0,text,Backend Developer (JAVA) #986218,Dexian Brasi
+385,qual sua pretensão salarial de acordo com o modelo clt?,5000,text,Backend Developer (JAVA) #986218,Dexian Brasi
+386,"Possui inglês fluente? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Backend Developer (JAVA) #986218,Dexian Brasi
+388,há quantos anos você já usa spring framework no trabalho?,3,text,Desenvolvedor Java Junior,Pasquali Solutio
+389,há quantos anos você já usa git no trabalho?,3,text,Desenvolvedor Java Junior,Pasquali Solutio
+390,há quantos anos você já usa java no trabalho?,0,text,Desenvolvedor Java Junior,Pasquali Solutio
+393,"Você possui uma das certificações mencionadas na descrição da vaga? [  ""Selecion...",Yes,select,Desenvolvedor full stack,Stefanini Brasi
+394,Nosso budget para essa oportunidade gira em torno de 10K + benefícios. Vaga CLT....,No,select,Desenvolvedor full stack,Stefanini Brasi
+395,"Você concorda em fazer uma verificação de antecedentes, de acordo com a legislaç...","""Sim""<Yes>",radio,Desenvolvedor full stack,Stefanini Brasi
+396,há quantos anos você já usa java no trabalho?,0,text,Desenvolvedor full stack,Stefanini Brasi
+397,por favor nos informe seu cpf:,3,text,Desenvolvedor full stack,Stefanini Brasi
+399,há quantos anos você já usa banco de dados oracle no trabalho?,3,text,Desenvolvedor full stack,Stefanini Brasi
+400,há quantos anos você já usa angular (framework) no trabalho?,1,text,Desenvolvedor full stack,Stefanini Brasi
+401,Nosso budget para essa oportunidade gira em torno de 10K + benefícios. Vaga CLT....,Yes,select,Desenvolvedor full stack,Stefanini Brasi
+403,"Você completou o curso Bacharelado? [  ""Sim""<Yes>, ""Não""<No>, ]","""Sim""<Yes>",radio,Desenvolvedor full stack,Stefanini Brasi
+404,há quantos anos você já usa c# no trabalho?,1,text,Desenvolvedor Pleno (Node.js/C#),Kaffa Tec
+405,qual a sua pretensão salarial para contratação clt?,5000,text,Desenvolvedor Pleno (Node.js/C#),Kaffa Tec
+406,"Você trabalharia em um modelo híbrido em Campinas?  [  ""Selecionar opção"", ""Yes""...",Yes,select,Desenvolvedor Pleno (Node.js/C#),Kaffa Tec
+407,direct-salary:qual a sua pretensão salarial para contratação clt?,5000,text-or-textarea,Desenvolvedor Pleno (Node.js/C#),Kaffa Tec
+408,há quantos anos você já usa node.js no trabalho?,1,text,Desenvolvedor Pleno (Node.js/C#),Kaffa Tec
+409,"Você trabalharia em um modelo híbrido em Campinas?  [  ""Selecionar opção"", ""Yes""...",No,select,Desenvolvedor Pleno (Node.js/C#),Kaffa Tec
+410,"E-mail [  ""Select an option"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Junior Java Developer - Remote,INDI Staffing Service
+411,telefone,21980292791,text,Junior Java Developer - Remote,INDI Staffing Service
+412,"Phone country code [ ""List of phone country codes"" ]",Yes,select,Junior Java Developer - Remote,INDI Staffing Service
+413,direct-salary:qual a sua pretensão salarial pj?,7000,text-or-textarea,Desenvolvedor Java,TIMWETEC
+414,há quantos anos você já usa spring boot no trabalho?,3,text,Desenvolvedor Java,TIMWETEC
+415,"Você já possui empresa PJ aberta? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Desenvolvedor Java,TIMWETEC
+416,"Tem vivência em sistemas de missão crítica?  [  ""Selecionar opção"", ""Yes"", ""No"",...",Yes,select,Desenvolvedor Java,TIMWETEC
+418,há quantos anos você já usa banco de dados oracle no trabalho?,3,text,Desenvolvedor Java,TIMWETEC
+419,"Tem disponibilidade dedicada? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Desenvolvedor Java,TIMWETEC
+420,qual a sua pretensão salarial pj?,7000,text,Desenvolvedor Java,TIMWETEC
+422,"Disponível para realizar um teste técnico de live coding?  [  ""Selecionar opção""...",Yes,select,Desenvolvedor Java,TIMWETEC
+425,há quantos anos você já usa python no trabalho?,3,text,Senior Backend Developer,Mouts T
+426,"Já utilizou ferramentas de orquestração como N8N, CrewAI ou LangChain? [  ""Selec...",Yes,select,Senior Backend Developer,Mouts T
+427,qual a sua expectativa salarial? considerando modelo pj,7000,text,Senior Backend Developer,Mouts T
+428,"Já utilizou ferramentas de orquestração como N8N, CrewAI ou LangChain? [  ""Selec...",No,select,Senior Backend Developer,Mouts T
+429,"Tem experiência em integrar IA generativa (OpenAI APIs, CrewAI, etc.) em aplicaç...",Yes,select,Senior Backend Developer,Mouts T
+432,qual sua pretensão salarial clt?,5000,text,Desenvolvedor Java/Groovy Pleno,Empresa Confidencia
+433,"Você possui experiência com Java 17/21 em ambientes críticos? [  ""Selecionar opç...",Yes,select,Desenvolvedor Java/Groovy Pleno,Empresa Confidencia
+435,há quantos anos você já usa java no trabalho?,0,text,Desenvolvedor Java/Groovy Pleno,Empresa Confidencia
+436,direct-salary:qual sua pretensão salarial clt?,5000,text-or-textarea,Desenvolvedor Java/Groovy Pleno,Empresa Confidencia
+437,"Possui experiência com Groovy On Grails? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Desenvolvedor Java/Groovy Pleno,Empresa Confidencia
+439,"E-mail [  ""Select an option"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Junior Node Developer - Remote,INDI Staffing Service
+440,telefone,21980292791,text,Junior Node Developer - Remote,INDI Staffing Service
+441,"Phone country code [ ""List of phone country codes"" ]",Yes,select,Junior Node Developer - Remote,INDI Staffing Service
+442,"Are you comfortable working in a remote setting? [  ""Yes""<Yes>, ""No""<No>, ]","""Yes""<Yes>",radio,Full-Stack Developer (React Native + Python / FastAPI / AWS),Philcoi
+443,"What is your level of proficiency in English? [  ""Select an option"", ""None"", ""Co...",Yes,select,Full-Stack Developer (React Native + Python / FastAPI / AWS),Philcoi
+444,"We must fill this position urgently. Can you start immediately? [  ""Yes""<Yes>, ""...","""Yes""<Yes>",radio,Full-Stack Developer (React Native + Python / FastAPI / AWS),Philcoi
+445,"E-mail [  ""Select an option"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Desenvolvedor Full Stack Node e React,GYRA
+446,telefone,21980292791,text,Desenvolvedor Full Stack Node e React,GYRA
+447,"Phone country code [ ""List of phone country codes"" ]",Yes,select,Desenvolvedor Full Stack Node e React,GYRA
+448,"Você possui experiência com Cloud Azure?  [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Desenvolvedor(a) Back-end (Java/Node.js) SR,V8.TEC
+450,há quantos anos você já usa java no trabalho?,0,text,Desenvolvedor(a) Back-end (Java/Node.js) SR,V8.TEC
+451,há quantos anos você já usa banco de dados sql no trabalho?,3,text,Desenvolvedor(a) Back-end (Java/Node.js) SR,V8.TEC
+452,há quantos anos você já usa node.js no trabalho?,1,text,Desenvolvedor(a) Back-end (Java/Node.js) SR,V8.TEC
+453,quanto tempo de experiência você possui em desenvolvimento react?,3,text,SR Desenvolvedor full stack (Node + React),íli
+454,qual sua pretensão salarial para uma oportunidade clt?,5000,text,SR Desenvolvedor full stack (Node + React),íli
+456,"Sua pretensão salarial é negociável? [  ""Selecionar opção"", ""Yes"", ""No"", ]",No,select,SR Desenvolvedor full stack (Node + React),íli
+457,quanto tempo de experiência você possui em desenvolvimento node?,3,text,SR Desenvolvedor full stack (Node + React),íli
+458,"Você possui fluência em inglês para conversação? [  ""Selecionar opção"", ""Yes"", ""...",Yes,select,SR Desenvolvedor full stack (Node + React),íli
+459,"Você possui fluência em inglês para conversação? [  ""Selecionar opção"", ""Yes"", ""...",No,select,SR Desenvolvedor full stack (Node + React),íli
+460,"Sua pretensão salarial é negociável? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,SR Desenvolvedor full stack (Node + React),íli
+462,direct-salary:qual sua pretensão salarial para uma oportunidade clt?,5000,text-or-textarea,SR Desenvolvedor full stack (Node + React),íli
+463,telefone,21980292791,text,Desenvolvedor Fullstack (Node.js + React Native),Dexian Brasi
+464,"E-mail [  ""Selecionar opção"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Desenvolvedor Fullstack (Node.js + React Native),Dexian Brasi
+465,"Código do país [  ""Selecionar opção"", ""Brasil (+55)"", ""Afeganistão (+93)"", ""Albâ...",Yes,select,Desenvolvedor Fullstack (Node.js + React Native),Dexian Brasi
+466,telefone,21980292791,text,Desenvolvedor(a) Back-End com experiência em Node.js e Nest.js,Starsof
+467,"E-mail [  ""Selecionar opção"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Desenvolvedor(a) Back-End com experiência em Node.js e Nest.js,Starsof
+468,"Código do país [  ""Selecionar opção"", ""Brasil (+55)"", ""Afeganistão (+93)"", ""Albâ...",Yes,select,Desenvolvedor(a) Back-End com experiência em Node.js e Nest.js,Starsof
+469,"Código do país [  ""Selecionar opção"", ""Brasil (+55)"", ""Afeganistão (+93)"", ""Albâ...",Yes,select,Desenvolvedor Full Stack,GMX SOLUCOES INDUSTRIAIS LTD
+470,"E-mail [  ""Selecionar opção"", ""leonardorfragoso@gmail.com"", ]",Yes,select,Desenvolvedor Full Stack,GMX SOLUCOES INDUSTRIAIS LTD
+471,telefone,21980292791,text,Desenvolvedor Full Stack,GMX SOLUCOES INDUSTRIAIS LTD
+472,há quantos anos você já usa desenvolvimento java no trabalho?,3,text,"""Desenvolvedor Java Pleno#987541""",Dexian Brasi
+474,"Você trabalharia em um modelo híbrido? [  ""Sim""<Yes>, ""Não""<No>, ]","""Sim""<Yes>",radio,"""Desenvolvedor Java Pleno#987541""",Dexian Brasi
+475,há quantos anos você já usa javascript puro no trabalho?,3,text,Desenvolvedor(a) JavaScript (Vanilla JS),Plus-IT Tec
+477,remuneração atual:,5000,text,Desenvolvedor com foco em automações de processos e IA,Grupo NTSe
+478,direct-salary:remuneração pretendida:,5000,text-or-textarea,Desenvolvedor com foco em automações de processos e IA,Grupo NTSe
+479,"Possui experiência com N8N? [  ""Selecionar opção"", ""Yes"", ""No"", ]",Yes,select,Desenvolvedor com foco em automações de processos e IA,Grupo NTSe
+480,remuneração pretendida:,5000,text,Desenvolvedor com foco em automações de processos e IA,Grupo NTSe
+482,direct-salary:remuneração atual:,5000,text-or-textarea,Desenvolvedor com foco em automações de processos e IA,Grupo NTSe

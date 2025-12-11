@@ -552,33 +552,108 @@ def answer_common_questions(label: str, answer: str) -> str:
     Intelligently answers questions based on keywords in the label
     Supports both Portuguese and English
     Special logic for salary: CLT = 5000, PJ = 7000
+    PRIORITY ORDER: Time/experience questions > Salary > Other smart answers
     '''
     import re
-    from config.questions import smart_answers
+    from config.questions import smart_answers, years_of_experience, python_experience_years, ci_cd_experience_years, it_experience_years, legal_experience_years, java_experience_years, nodejs_experience_years, reactjs_experience_years, age_started_programming, taxa_hora_pj, cpf_number, english_level
     
     # Convert label to lowercase for matching
     label_lower = label.lower()
     
-    # Try to match with smart answers dictionary
+    # PRIORITY 1: Time/duration questions - these ALWAYS need numeric answers
+    # Check for "há quanto tempo", "how long", "quanto tempo", "há quantos anos" patterns
+    time_indicators = ['há quanto tempo', 'how long', 'quanto tempo', 'há quantos anos', 
+                       'quantos anos', 'how many years', 'years of experience', 
+                       'anos de experiência', 'experiência com', 'experience with',
+                       'já usa', 'you have been using', 'work experience']
+    
+    is_time_question = any(indicator in label_lower for indicator in time_indicators)
+    
+    if is_time_question:
+        # Return appropriate experience years based on technology mentioned
+        if 'python' in label_lower:
+            print_lg(f"Time question detected (Python): '{label}' -> {python_experience_years}")
+            return str(python_experience_years)
+        elif any(k in label_lower for k in ['java', 'spring', 'spring boot', 'jboss', 'quarkus']):
+            print_lg(f"Time question detected (Java): '{label}' -> {java_experience_years}")
+            return str(java_experience_years)
+        elif any(k in label_lower for k in ['node', 'nodejs', 'node.js']):
+            print_lg(f"Time question detected (Node.js): '{label}' -> {nodejs_experience_years}")
+            return str(nodejs_experience_years)
+        elif any(k in label_lower for k in ['react', 'reactjs', 'react.js', 'react native']):
+            print_lg(f"Time question detected (React.js): '{label}' -> {reactjs_experience_years}")
+            return str(reactjs_experience_years)
+        elif any(k in label_lower for k in ['ci/cd', 'cicd', 'integração contínua', 'entrega contínua', 'continuous integration', 'continuous delivery']):
+            print_lg(f"Time question detected (CI/CD): '{label}' -> {ci_cd_experience_years}")
+            return str(ci_cd_experience_years)
+        elif any(k in label_lower for k in ['tecnologia da informação', 'information technology', ' ti ', ' it ']):
+            print_lg(f"Time question detected (IT): '{label}' -> {it_experience_years}")
+            return str(it_experience_years)
+        elif any(k in label_lower for k in ['jurídico', 'juridico', 'legal', 'law']):
+            print_lg(f"Time question detected (Legal): '{label}' -> {legal_experience_years}")
+            return str(legal_experience_years)
+        else:
+            # Default years of experience for any other time question
+            print_lg(f"Time question detected (General): '{label}' -> {years_of_experience}")
+            return str(years_of_experience)
+    
+    # PRIORITY 2: CPF question
+    if 'cpf' in label_lower:
+        print_lg(f"CPF question detected: '{label}' -> {cpf_number}")
+        return str(cpf_number)
+    
+    # PRIORITY 3: Age started programming
+    if any(k in label_lower for k in ['programa desde qual idade', 'started programming', 'começou a programar', 'age.*programming']):
+        print_lg(f"Age started programming question: '{label}' -> {age_started_programming}")
+        return str(age_started_programming)
+    
+    # PRIORITY 4: Taxa/hora PJ
+    if any(k in label_lower for k in ['taxa/hora', 'taxa hora', 'por hora', 'hourly rate', 'rate per hour', '/hora', '/h']):
+        print_lg(f"Taxa/hora PJ question: '{label}' -> {taxa_hora_pj}")
+        return str(taxa_hora_pj)
+    
+    # PRIORITY 5: English level
+    if any(k in label_lower for k in ['nível de inglês', 'english level', 'proficiency in english', 'inglês', 'english']):
+        if 'fluent' in label_lower or 'fluente' in label_lower:
+            print_lg(f"English fluency question: '{label}' -> No (Intermediário)")
+            return "No"  # User is intermediate, not fluent
+        else:
+            print_lg(f"English level question: '{label}' -> {english_level}")
+            return str(english_level)
+    
+    # PRIORITY 6: Salary questions - special handling
+    salary_indicators = ['pretensão', 'salário', 'salarial', 'remuneração', 'salary', 'compensation', 'ctc', 'pay']
+    is_salary_question = any(indicator in label_lower for indicator in salary_indicators)
+    
+    if is_salary_question:
+        # Check if it's current salary
+        if 'atual' in label_lower or 'current' in label_lower:
+            print_lg(f"Current salary question: '{label}' -> {current_ctc}")
+            return str(current_ctc)
+        # Check if it's CLT or PJ
+        elif 'clt' in label_lower or 'carteira assinada' in label_lower or 'carteira' in label_lower:
+            print_lg(f"Salary question (CLT): '{label}' -> {desired_salary}")
+            return str(desired_salary)
+        elif 'pj' in label_lower or 'pessoa jurídica' in label_lower or 'cnpj' in label_lower:
+            print_lg(f"Salary question (PJ): '{label}' -> 7000")
+            return "7000"
+        else:
+            # Default to desired salary
+            print_lg(f"Salary question (default): '{label}' -> {desired_salary}")
+            return str(desired_salary)
+    
+    # PRIORITY 7: Try to match with smart answers dictionary (excluding time/salary already handled)
     for keywords, smart_answer in smart_answers.items():
+        # Skip time-related and salary entries (already handled above)
+        if smart_answer == "SALARY_CHECK":
+            continue
+        if any(time_word in keywords for time_word in ['anos de experiência', 'years of experience', 'experience in', 'experiência em']):
+            continue
+            
         # Split keywords by | and check if any matches
         keyword_list = keywords.split('|')
         for keyword in keyword_list:
             if keyword.strip() in label_lower:
-                # Special handling for salary questions
-                if smart_answer == "SALARY_CHECK":
-                    # Check if it's CLT or PJ
-                    if 'clt' in label_lower or 'carteira assinada' in label_lower:
-                        print_lg(f"Smart answer matched for '{label}': 5000 (CLT)")
-                        return "5000"
-                    elif 'pj' in label_lower or 'pessoa jurídica' in label_lower or 'cnpj' in label_lower:
-                        print_lg(f"Smart answer matched for '{label}': 7000 (PJ)")
-                        return "7000"
-                    else:
-                        # Default to CLT if not specified
-                        print_lg(f"Smart answer matched for '{label}': 5000 (default CLT)")
-                        return "5000"
-                
                 print_lg(f"Smart answer matched for '{label}': {smart_answer}")
                 return str(smart_answer)
     
@@ -686,6 +761,25 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
                         answer = gender
                     elif 'disability' in label: 
                         answer = disability_status
+                    # Acceptance questions (Aceita remuneração, aceita benefícios, etc.) - Yes/No dropdowns
+                    elif any(accept_word in label for accept_word in ['aceita', 'accept', 'concorda', 'agree', 'toparia', 'gostaria']):
+                        answer = 'Yes'
+                        print_lg(f"Detected acceptance question, answering: Yes")
+                    # English/Language proficiency questions - match available options
+                    elif ('inglês' in label or 'ingles' in label or 'english' in label) and ('nível' in label or 'nivel' in label or 'level' in label or 'proficiência' in label or 'proficiency' in label):
+                        # Try to find appropriate option based on available choices
+                        options_lower = [opt.lower() for opt in optionsText]
+                        if any('conversação' in opt or 'conversacao' in opt for opt in options_lower):
+                            answer = 'Conversação'
+                        elif any('intermediário' in opt or 'intermediario' in opt for opt in options_lower):
+                            answer = 'Intermediário'
+                        elif any('b2' in opt for opt in options_lower):
+                            answer = 'B2'
+                        elif any('proficiente' in opt or 'proficient' in opt for opt in options_lower):
+                            answer = 'Proficiente'
+                        else:
+                            answer = 'Conversação'  # Default fallback
+                        print_lg(f"Detected English level question, answering: {answer}")
                     elif 'proficiency' in label: 
                         answer = 'Professional'
                     # Availability questions (disponibilidade)
@@ -702,10 +796,6 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
                             answer = current_city if current_city else work_location
                         else:
                             answer = work_location
-                    # English level questions - use B2
-                    elif 'english' in label and ('level' in label or 'proficiency' in label or 'nível' in label):
-                        answer = 'B2'
-                        print_lg(f"Detected English level question, answering: B2")
                     # Work authorization Latin America - Yes
                     elif 'work authorization' in label or 'autorização' in label or 'eligible to work' in label:
                         if 'latin america' in label or 'américa latina' in label or 'latam' in label:
@@ -715,21 +805,37 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
                             answer = 'Yes'
                             print_lg(f"Detected work authorization question, answering: Yes")
                     # How did you hear about this opportunity - LinkedIn
-                    elif 'how did you hear' in label or 'como soube' in label or 'como conheceu' in label:
+                    elif 'how did you hear' in label or 'como soube' in label or 'como conheceu' in label or 'hear about' in label:
                         answer = 'LinkedIn'
                         print_lg(f"Detected referral source question, answering: LinkedIn")
-                    # Graduation year
-                    elif 'graduation' in label and 'year' in label or 'ano' in label and ('formatura' in label or 'graduação' in label):
-                        answer = '2022'
+                    # Graduation year - try to find 2022 in options
+                    elif ('graduation' in label and 'year' in label) or ('year' in label and ('graduate' in label or 'bachelor' in label)) or ('ano' in label and ('formatura' in label or 'graduação' in label)):
+                        # Try to find 2022 in options
+                        if any('2022' in opt for opt in optionsText):
+                            answer = '2022'
+                        else:
+                            answer = '2022'
                         print_lg(f"Detected graduation year question, answering: 2022")
+                    # GPA / Academic score questions - answer N/A
+                    elif 'gpa' in label or 'grade point' in label or label == 'unknown':
+                        # Check if N/A is an option
+                        if any('n/a' in opt.lower() for opt in optionsText):
+                            answer = 'N/A'
+                        else:
+                            answer = 'N/A'
+                        print_lg(f"Detected GPA question, answering: N/A")
                     # Technical skills questions - default to Sim (Yes)
                     elif any(tech in label for tech in ['cloudformation', 'terraform', 'infra as code', 'kubernetes', 'k8s', 
                         'jenkins', 'azure devops', 'ci/cd', 'cicd', 'gitlab', 'github', 'docker', 'container',
                         'aws', 'amazon', 'ec2', 's3', 'lambda', 'linux', 'shell', 'python', 'git', 
                         'postgresql', 'mysql', 'mongodb', 'sql', 'nosql', 'api', 'rest', 'graphql',
                         'forte conhecimentos', 'conhecimento avançado', 'conhecimento em']):
-                        answer = 'Sim'
-                        print_lg(f"Detected technical skill question, answering: Sim")
+                        answer = 'Yes'
+                        print_lg(f"Detected technical skill question, answering: Yes")
+                    # Experience questions with Yes/No options (Possui experiência, Você tem, Já trabalhou, etc.)
+                    elif any(exp_word in label for exp_word in ['possui', 'você tem', 'ja teve', 'já teve', 'já trabalhou', 'ja trabalhou', 'experience', 'experiência', 'trabalharia', 'topa', 'toparia', 'negociável', 'negociavel']):
+                        answer = 'Yes'
+                        print_lg(f"Detected experience/acceptance question, answering: Yes")
                     else: 
                         answer = answer_common_questions(label,answer)
                     try: 
@@ -740,7 +846,7 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
                         if answer == 'Decline':
                             possible_answer_phrases = ["Decline", "not wish", "don't wish", "Prefer not", "not want"]
                         elif 'yes' in answer.lower() or answer.lower() == 'sim':
-                            possible_answer_phrases = ["Yes", "Agree", "I do", "I have", "Sim", "sim"]
+                            possible_answer_phrases = ["Yes", "Agree", "I do", "I have", "Sim", "sim", "Tenho", "Aceito"]
                         elif 'no' in answer.lower() or answer.lower() == 'não' or answer.lower() == 'nao':
                             possible_answer_phrases = ["No", "Disagree", "I don't", "I do not", "Não", "não", "Nao", "nao"]
                         else:
@@ -881,22 +987,30 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
 
             prev_answer = text.get_attribute("value")
             if not prev_answer or overwrite_previous_answers:
+                # Age when started programming - CHECK FIRST (before other patterns)
+                # Patterns: "desde qual idade", "qual idade", "programa desde", "age", etc.
+                if ('idade' in label and ('programa' in label or 'desde' in label or 'qual' in label)) or \
+                   ('age' in label and ('programming' in label or 'code' in label or 'coding' in label or 'started' in label)) or \
+                   ('desde qual idade' in label) or ('qual idade' in label and 'programa' in label):
+                    answer = "29"
+                    print_lg(f"Detected programming age question, answering: {answer}")
                 # University / Education institution questions
-                if 'university' in label or 'universidade' in label or 'faculdade' in label or 'institution' in label or 'instituição' in label or 'graduated from' in label:
+                elif 'university' in label or 'universidade' in label or 'faculdade' in label or 'institution' in label or 'instituição' in label or 'graduated from' in label or "bachelor's" in label or 'bachelor' in label:
                     answer = "Universidade Estácio de Sá"
                     print_lg(f"Detected university question, answering: {answer}")
-                # Age when started programming
-                elif ('idade' in label or 'age' in label or 'qual idade' in label) and ('programa' in label or 'programming' in label or 'code' in label or 'coding' in label):
-                    answer = "18"
-                    print_lg(f"Detected programming age question, answering: {answer}")
                 # Country of residence
                 elif 'country' in label and ('reside' in label or 'live' in label or 'residence' in label):
                     answer = "Brasil"
                     print_lg(f"Detected country question, answering: {answer}")
                 # English level with numbered options (1- Básico, 2- Intermediário, 3- Avançado)
                 elif ('nível' in label or 'nivel' in label or 'level' in label) and ('inglês' in label or 'ingles' in label or 'english' in label):
-                    answer = "2"  # Intermediário
-                    print_lg(f"Detected English level question (numbered), answering: 2 (Intermediário)")
+                    # Check if it's asking for a number (1, 2, 3) or text
+                    if '1-' in label or '2-' in label or '1 -' in label or '2 -' in label:
+                        answer = "2"  # Intermediário (numbered option)
+                        print_lg(f"Detected English level question (numbered), answering: 2")
+                    else:
+                        answer = "B2"  # Standard level
+                        print_lg(f"Detected English level question, answering: B2")
                 # "há quanto tempo" questions should always return years
                 elif 'há quanto tempo' in label or 'how long' in label or 'quanto tempo' in label:
                     answer = years_of_experience
@@ -954,8 +1068,8 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
                         elif 'lakh' in label:
                             answer = desired_salary_lakhs
                         else:
-                            answer = "5000"  # Default to CLT
-                            print_lg(f"Detected salary question, answering: 5000")
+                            answer = desired_salary
+                            print_lg(f"Detected salary question (desired), answering: {desired_salary}")
                 elif 'linkedin' in label: answer = linkedIn
                 elif 'website' in label or 'blog' in label or 'portfolio' in label or 'link' in label: answer = website
                 elif 'scale of 1-10' in label: answer = confidence_level
@@ -970,8 +1084,12 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
                 if answer == "":
                     label_full_lower = label_org.lower() if label_org else ""
                     if any(word in label_full_lower for word in ['salário', 'salarial', 'remuneração', 'pretensão', 'expectativas', 'atrativos', 'salary', 'compensation', 'pay']):
-                        answer = "5000"
-                        print_lg(f"FALLBACK: Detected salary question from full label, answering: 5000")
+                        if 'atual' in label_full_lower or 'current' in label_full_lower:
+                            answer = current_ctc
+                            print_lg(f"FALLBACK: Detected CURRENT salary question, answering: {current_ctc}")
+                        else:
+                            answer = desired_salary
+                            print_lg(f"FALLBACK: Detected DESIRED salary question, answering: {desired_salary}")
                     elif any(word in label_full_lower for word in ['ci/cd', 'integração e entrega contínuas', 'integração contínua', 'entrega contínua', 'continuous integration', 'continuous delivery']):
                         answer = ci_cd_experience_years
                         print_lg(f"FALLBACK: Detected CI/CD experience question from full label, answering: {answer}")
@@ -1078,8 +1196,12 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
                 if answer == "":
                     label_full_lower = label_org.lower() if label_org else ""
                     if any(word in label_full_lower for word in ['salário', 'salarial', 'remuneração', 'pretensão', 'expectativas', 'atrativos', 'salary', 'compensation', 'pay']):
-                        answer = "5000"
-                        print_lg(f"FALLBACK (textarea): Detected salary question from full label, answering: 5000")
+                        if 'atual' in label_full_lower or 'current' in label_full_lower:
+                            answer = current_ctc
+                            print_lg(f"FALLBACK (textarea): Detected CURRENT salary question, answering: {current_ctc}")
+                        else:
+                            answer = desired_salary
+                            print_lg(f"FALLBACK (textarea): Detected DESIRED salary question, answering: {desired_salary}")
                     elif 'python' in label_full_lower:
                         answer = python_experience_years
                         print_lg(f"FALLBACK (textarea): Detected Python experience question from full label, answering: {answer}")
@@ -1280,7 +1402,7 @@ def submitted_jobs(job_id: str, title: str, company: str, work_location: str, wo
 def discard_job() -> None:
     actions.send_keys(Keys.ESCAPE).perform()
     # Try both English and Portuguese
-    if not click_button_multilang(driver, ['Discard', 'Descartar', 'Cancelar'], 2):
+    if not click_button_multilang(driver, ['Descartar', 'Cancelar'], 2):
         # If button not found, try pressing ESC again
         actions.send_keys(Keys.ESCAPE).perform()
 
@@ -1454,7 +1576,7 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                 errored = ""
                                 modal = find_by_class(driver, "jobs-easy-apply-modal")
                                 # Try clicking Next/Próximo/Avançar button
-                                click_button_multilang(modal, ["Next", "Próximo", "Avançar"], 1)
+                                click_button_multilang(modal, ["Avançar", "Próximo"], 1)
                                 # if description != "Unknown":
                                 #     resume = create_custom_resume(description)
                                 resume = "Previous resume"
@@ -1475,13 +1597,12 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                         raise Exception("Seems like stuck in a continuous loop of next, probably because of new questions.")
                                     questions_list = answer_questions(modal, questions_list, work_location, job_description=description)
                                     if useNewResume and not uploaded: uploaded, resume = upload_resume(modal, default_resume_path)
-                                    try: next_button = modal.find_element(By.XPATH, './/span[normalize-space(.)="Review"]') 
+                                    try: next_button = modal.find_element(By.XPATH, './/span[normalize-space(.)="Revisar"]') 
                                     except NoSuchElementException:  
-                                        # Try Portuguese variations
-                                        try: next_button = modal.find_element(By.XPATH, './/span[normalize-space(.)="Revisar"]')
+                                        try: next_button = modal.find_element(By.XPATH, './/span[normalize-space(.)="Rever"]')
                                         except NoSuchElementException:
-                                            try: next_button = modal.find_element(By.XPATH, './/button[contains(span, "Next") or contains(span, "Avançar") or contains(span, "Próximo")]')
-                                            except NoSuchElementException: next_button = modal.find_element(By.XPATH, './/button[@aria-label="Avançar para a próxima etapa" or contains(@aria-label, "Next") or contains(@aria-label, "Continue")]')
+                                            try: next_button = modal.find_element(By.XPATH, './/button[contains(span, "Avançar") or contains(span, "Próximo")]')
+                                            except NoSuchElementException: next_button = modal.find_element(By.XPATH, './/button[@aria-label="Avançar para a próxima etapa" or contains(@aria-label, "Avançar")]')
                                     try: next_button.click()
                                     except ElementClickInterceptedException: break    # Happens when it tries to click Next button in About Company photos section
                                     except StaleElementReferenceException:
@@ -1504,9 +1625,9 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                 # Try clicking Review/Revisar/Avançar button (final step before submit)
                                 buffer(2)  # Wait a bit for the page to load
                                 # Try multiple times with different button texts
-                                if not click_button_multilang(driver, ["Review", "Revisar", "Rever"], 3):
-                                    # If Review not found, try Avançar or Next
-                                    if not click_button_multilang(driver, ["Avançar", "Next"], 3):
+                                if not click_button_multilang(driver, ["Revisar", "Rever"], 3):
+                                    # Se Revisar não encontrado, tenta Avançar
+                                    if not click_button_multilang(driver, ["Avançar", "Próximo"], 3):
                                         # If still not found, might already be on final screen
                                         print_lg("Review button not found, assuming already on final screen")
                                 cur_pause_before_submit = pause_before_submit
@@ -1578,13 +1699,13 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                         pass
                                 
                                 # Fallback to click_button_multilang in modal
-                                if not submitted and click_button_multilang(modal, ["Submit application", "Enviar candidatura", "Enviar"], 3):
+                                if not submitted and click_button_multilang(modal, ["Enviar candidatura", "Enviar"], 3):
                                     submitted = True
-                                elif not submitted and click_button_multilang(driver, ["Submit application", "Enviar candidatura", "Enviar"], 3):
+                                elif not submitted and click_button_multilang(driver, ["Enviar candidatura", "Enviar"], 3):
                                     submitted = True
-                                elif not submitted and click_button_multilang(driver, ["Salvar", "Save", "Send"], 3):
+                                elif not submitted and click_button_multilang(driver, ["Salvar", "Enviar"], 3):
                                     submitted = True
-                                elif not submitted and click_button_multilang(driver, ["Concluir", "Complete", "Finish"], 3):
+                                elif not submitted and click_button_multilang(driver, ["Concluir", "Finalizar"], 3):
                                     submitted = True
                                 
                                 if submitted: 
@@ -1619,12 +1740,12 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                         except:
                                             pass
                                     # Fallback to click_button_multilang
-                                    if not done_clicked and not click_button_multilang(driver, ["Done", "Concluído", "Fechar", "OK", "Dismiss"], 2): 
+                                    if not done_clicked and not click_button_multilang(driver, ["Concluído", "Fechar", "OK"], 2): 
                                         actions.send_keys(Keys.ESCAPE).perform()
                                         print_lg("Pressed ESC to close modal")
                                 elif errored != "stuck" and cur_pause_before_submit and "Yes" in pyautogui.confirm("You submitted the application, didn't you 😒?", "Failed to find Submit Application!", ["Yes", "No"]):
                                     date_applied = datetime.now()
-                                    click_button_multilang(driver, ["Done", "Concluído", "Fechar"], 2)
+                                    click_button_multilang(driver, ["Concluído", "Fechar"], 2)
                                 else:
                                     print_lg("Since, Submit Application failed, discarding the job application...")
                                     # if screenshot_name == "Not Available":  screenshot_name = screenshot(driver, job_id, "Failed to click Submit application")

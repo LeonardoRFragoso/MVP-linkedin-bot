@@ -27,6 +27,9 @@ python_experience_years = "3"
 legal_experience_years = "3"
 ci_cd_experience_years = "3"
 it_experience_years = "7"
+java_experience_years = "2"        # Java experience
+nodejs_experience_years = "3"      # Node.js experience
+reactjs_experience_years = "3"     # React.js experience
 
 # Do you need visa sponsorship now or in future?
 require_visa = "No"               # "Yes" or "No"
@@ -41,6 +44,17 @@ linkedIn = "https://www.linkedin.com/in/leonardo-fragoso-921b166a/"       # "htt
 # Valid options are: "U.S. Citizen/Permanent Resident", "Non-citizen allowed to work for any employer", "Non-citizen allowed to work for current employer", "Non-citizen seeking work authorization", "Canadian Citizen/Permanent Resident" or "Other"
 us_citizenship = "Other"
 
+# Age started programming
+age_started_programming = "14"     # Idade que começou a programar
+
+# Taxa/hora PJ (R$ 80-120)
+taxa_hora_pj = "100"               # Taxa/hora PJ (R$ 80-120)
+
+# CPF
+cpf_number = "15284848780"          # CPF
+
+# English level
+english_level = "Intermediário"     # Nível de inglês
 
 ## SOME ANNOYING QUESTIONS BY COMPANIES ##
 
@@ -177,7 +191,19 @@ smart_answers = {
     "anos de experiência com integração e entrega contínuas|anos de experiência com integração contínua|anos de experiência com entrega contínua|anos usando integração e entrega contínuas|anos usando integração contínua|anos usando entrega contínua|anos de experiência com ci/cd|anos usando ci/cd|ci/cd experience|experience with ci/cd|continuous integration experience|continuous delivery experience": ci_cd_experience_years,
     "anos de experiência com tecnologia da informação|anos em tecnologia da informação|anos de experiência em tecnologia da informação|information technology experience|experience in information technology|it experience": it_experience_years,
     "anos de experiência|years of experience|experiência em|experience in|quantos anos|how many years|tempo de experiência|experience time": years_of_experience,
-    "anos de|years of|anos com|years with|anos usando|years using": years_of_experience,
+    "anos de|years of|anos com|years with|anos usando|years using|já usa|no trabalho": years_of_experience,
+    "anos de experiência com java|anos de experiência java|java experience|experience with java": java_experience_years,
+    "anos de experiência com nodejs|anos de experiência nodejs|nodejs experience|experience with nodejs": nodejs_experience_years,
+    "anos de experiência com reactjs|anos de experiência reactjs|reactjs experience|experience with reactjs": reactjs_experience_years,
+    
+    # CPF
+    "cpf|informe seu cpf|seu cpf": cpf_number,
+    
+    # Age started programming
+    "programa desde qual idade|started programming|começou a programar|idade.*programar": age_started_programming,
+    
+    # Taxa/hora PJ
+    "taxa/hora|taxa hora|por hora|hourly rate|rate per hour|valor hora": taxa_hora_pj,
     
     # On-site / presencial work question (radio Yes/No)
     "você trabalharia presencialmente|trabalharia presencialmente|trabalho presencial|work on-site|on-site work|onsite work": "Não",
@@ -213,7 +239,7 @@ smart_answers = {
     "formação|education|graduação|degree|escolaridade": "Bacharel em Gestão de Tecnologia da Informação",
     
     # English level / Language
-    "inglês|english|idioma|language": "Intermediário",
+    "inglês|english|idioma|language": english_level,
     
     # Portfolio / GitHub
     "portfólio|portfolio|github|projetos|projects": website,
@@ -221,8 +247,8 @@ smart_answers = {
     # LinkedIn profile
     "linkedin|perfil linkedin": linkedIn,
     
-    # Work authorization / Visa
-    "autorização de trabalho|work authorization|visto|visa|sponsorship": require_visa,
+    # Work authorization / Visa - Always Yes for Latin America
+    "autorização de trabalho|work authorization|visto|visa|sponsorship|eligible to work|autorizado a trabalhar": "Yes",
     
     # Relocation
     "mudança|relocation|relocate|mudar de cidade": "Não necessário, trabalho remoto",
