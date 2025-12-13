@@ -118,19 +118,19 @@ with tab1:
             df_applied['Date'] = df_applied['Date Applied'].dt.date
             daily = df_applied.groupby('Date').size().reset_index(name='Candidaturas')
             fig = px.bar(daily, x='Date', y='Candidaturas', title='Candidaturas por Dia', color_discrete_sequence=['#28a745'])
-            st.plotly_chart(fig, width='stretch')
+            st.plotly_chart(fig, use_container_width=True)
         
         if 'Company' in df_applied.columns:
             top_companies = df_applied['Company'].value_counts().head(10)
             fig2 = px.bar(x=top_companies.values, y=top_companies.index, orientation='h',
                          title='Top 10 Empresas', labels={'x': 'Qtd', 'y': 'Empresa'}, color_discrete_sequence=['#007bff'])
             fig2.update_layout(yaxis={'categoryorder': 'total ascending'})
-            st.plotly_chart(fig2, width='stretch')
+            st.plotly_chart(fig2, use_container_width=True)
         
         cols = ['Title', 'Company', 'Date Applied', 'Job Link']
         avail = [c for c in cols if c in df_applied.columns]
         if avail:
-            st.dataframe(df_applied[avail].sort_values('Date Applied', ascending=False) if 'Date Applied' in avail else df_applied[avail], width='stretch', height=400)
+            st.dataframe(df_applied[avail].sort_values('Date Applied', ascending=False) if 'Date Applied' in avail else df_applied[avail], use_container_width=True, height=400)
     else:
         st.warning("Nenhuma candidatura encontrada.")
 
@@ -223,11 +223,11 @@ with tab3:
         if 'Assumed Reason' in df_failed.columns:
             reasons = df_failed['Assumed Reason'].value_counts()
             fig = px.pie(values=reasons.values, names=reasons.index, title='Motivos de Falha', hole=0.4)
-            st.plotly_chart(fig, width='stretch')
+            st.plotly_chart(fig, use_container_width=True)
             
             st.subheader("Detalhamento")
             reason_df = pd.DataFrame({'Motivo': reasons.index, 'Quantidade': reasons.values, '%': (reasons.values / reasons.sum() * 100).round(1)})
-            st.dataframe(reason_df, width='stretch')
+            st.dataframe(reason_df, use_container_width=True)
         
         # Bad Words
         st.subheader("🚫 Bad Words Detectadas")
@@ -242,15 +242,15 @@ with tab3:
             bw_df = pd.DataFrame({'Bad Word': list(bw_counts.keys()), 'Ocorrências': list(bw_counts.values())}).sort_values('Ocorrências', ascending=False)
             col1, col2 = st.columns([1, 2])
             with col1:
-                st.dataframe(bw_df, width='stretch')
+                st.dataframe(bw_df, use_container_width=True)
             with col2:
                 fig3 = px.bar(bw_df, x='Bad Word', y='Ocorrências', title='Bad Words', color_discrete_sequence=['#ffc107'])
-                st.plotly_chart(fig3, width='stretch')
+                st.plotly_chart(fig3, use_container_width=True)
         
         cols = ['Job ID', 'Assumed Reason', 'Date Tried', 'Job Link']
         avail = [c for c in cols if c in df_failed.columns]
         if avail:
-            st.dataframe(df_failed[avail].drop_duplicates(), width='stretch', height=400)
+            st.dataframe(df_failed[avail].drop_duplicates(), use_container_width=True, height=400)
     else:
         st.warning("Nenhuma falha encontrada.")
 
@@ -278,14 +278,14 @@ with tab4:
             if 'tipo' in qdf.columns:
                 types = qdf['tipo'].value_counts()
                 fig = px.pie(values=types.values, names=types.index, title='Tipos de Perguntas', hole=0.3)
-                st.plotly_chart(fig, width='stretch')
+                st.plotly_chart(fig, use_container_width=True)
             
             top_qs = qdf['pergunta'].value_counts().head(15)
             fig2 = px.bar(x=top_qs.values, y=top_qs.index, orientation='h', title='Top 15 Perguntas', labels={'x': 'Freq', 'y': 'Pergunta'}, color_discrete_sequence=['#17a2b8'])
             fig2.update_layout(yaxis={'categoryorder': 'total ascending'}, height=500)
-            st.plotly_chart(fig2, width='stretch')
+            st.plotly_chart(fig2, use_container_width=True)
             
-            st.dataframe(qdf[['pergunta', 'resposta', 'tipo', 'vaga', 'empresa']].drop_duplicates(), width='stretch', height=400)
+            st.dataframe(qdf[['pergunta', 'resposta', 'tipo', 'vaga', 'empresa']].drop_duplicates(), use_container_width=True, height=400)
         else:
             st.info("Nenhuma pergunta encontrada.")
     else:
