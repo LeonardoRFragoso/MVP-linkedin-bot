@@ -1,0 +1,238 @@
+{
+  "personal_info": {
+    "first_name": "Leonardo",
+    "middle_name": "Rodrigues",
+    "last_name": "Fragoso",
+    "phone_number": "21980292791",
+    "current_city": "Rio de Janeiro",
+    "address": {
+      "street": "Rua Iaco 180, apt 306",
+      "state": "RJ",
+      "zipcode": "21921-640",
+      "country": "Brasil"
+    },
+    "demographics": {
+      "ethnicity": "Decline",
+      "gender": "Decline",
+      "disability_status": "Decline",
+      "veteran_status": "Decline"
+    }
+  },
+  "linkedin_credentials": {
+    "email": "leonardorfragoso@gmail.com",
+    "password": "enc:gAAAAABpeXotYDFnlXO0XvzgiYSVjvzctUZtnSao3gNl_zbw2RUOw5gWNd7nkmKQCSPzMbkCCW9jMI9xBvkyokxgJfjrocOdRIgpzMocXGrmA3gDvP7_GBk="
+  },
+  "ai_config": {
+    "use_ai": false,
+    "provider": "openai",
+    "api_url": "https://api.openai.com/v1/",
+    "api_key": "not-needed",
+    "model": "gpt-5-mini",
+    "spec": "openai",
+    "stream_output": false
+  },
+  "search_preferences": {
+    "search_terms": [
+      "Desenvolvedor Python",
+      "Python Developer",
+      "Desenvolvedor Django",
+      "Django Developer",
+      "Desenvolvedor Flask",
+      "Flask Developer",
+      "Full Stack Developer",
+      "Desenvolvedor Full Stack",
+      "Backend Developer",
+      "Desenvolvedor Backend",
+      "Node.js Developer",
+      "Desenvolvedor Node.js",
+      "Desenvolvedor de Automações",
+      "RPA Developer",
+      "API Developer"
+    ],
+    "search_location": "Brasil",
+    "switch_number": 20,
+    "randomize_search_order": false,
+    "filters": {
+      "sort_by": "Most recent",
+      "date_posted": "Past 24 hours",
+      "salary": "",
+      "easy_apply_only": true,
+      "experience_level": [
+        "Entry level",
+        "Associate"
+      ],
+      "job_type": [],
+      "on_site": [
+        "Remote",
+        "Hybrid"
+      ],
+      "companies": [],
+      "location": [
+        "Rio de Janeiro",
+        "Remote",
+        "Brasil"
+      ],
+      "industry": [],
+      "job_function": [],
+      "job_titles": [],
+      "benefits": [],
+      "commitments": [],
+      "under_10_applicants": false,
+      "in_your_network": false,
+      "fair_chance_employer": false
+    },
+    "pause_after_filters": true
+  },
+  "blacklist": {
+    "about_company_bad_words": [
+      "Crossover"
+    ],
+    "about_company_good_words": [],
+    "bad_words": [
+      "US Citizen",
+      "USA Citizen",
+      "No C2C",
+      "No Corp2Corp",
+      "Embedded Programming",
+      "CNC",
+      "COBOL",
+      "FORTRAN",
+      "Mainframe",
+      "AS/400"
+    ],
+    "contextual_bad_words": [],
+    "security_clearance": false,
+    "did_masters": false,
+    "current_experience": 8
+  },
+  "bot_settings": {
+    "linkedin": {
+      "close_tabs": false,
+      "follow_companies": false,
+      "run_non_stop": false,
+      "alternate_sortby": true,
+      "cycle_date_posted": true,
+      "stop_date_cycle_at_24hr": true
+    },
+    "paths": {
+      "generated_resume_path": "all resumes/",
+      "file_name": "all excels/all_applied_applications_history.csv",
+      "failed_file_name": "all excels/all_failed_applications_history.csv",
+      "logs_folder_path": "logs/"
+    },
+    "behavior": {
+      "click_gap": 1,
+      "run_in_background": false,
+      "disable_extensions": false,
+      "safe_mode": false,
+      "smooth_scroll": false,
+      "keep_screen_awake": true,
+      "stealth_mode": false,
+      "showAiErrorAlerts": false
+    }
+  },
+  "resume_config": {
+    "default_resume_path": "C:\\Users\\leona\\OneDrive\\Documentos\\Projetos\\linkdin-bot\\CV - Leonardo Fragoso _ Desenvolvedor Full Stack.pdf",
+    "resume_national": "C:\\Users\\leona\\OneDrive\\Documentos\\Projetos\\linkdin-bot\\CV Leonardo Fragoso - Desenvolvedor de Sistemas.pdf",
+    "resume_international": "C:\\Users\\leona\\OneDrive\\Documentos\\Projetos\\linkdin-bot\\CV - Leonardo Fragoso _ Desenvolvedor Full Stack.pdf"
+  },
+  "experience": {
+    "years_of_experience": "5",
+    "by_technology": {
+      "python": "5",
+      "django": "5",
+      "flask": "4",
+      "fastapi": "3",
+      "javascript": "5",
+      "javascript (es6+)": "5",
+      "es6": "5",
+      "typescript": "3",
+      "react": "5",
+      "reactjs": "5",
+      "react.js": "5",
+      "next.js": "3",
+      "nextjs": "3",
+      "node": "5",
+      "nodejs": "5",
+      "node.js": "5",
+      "html": "5",
+      "html5": "5",
+      "css": "5",
+      "scss": "3",
+      "sass": "3",
+      "tailwind": "3",
+      "frontend": "5",
+      "front-end": "5",
+      "sql": "5",
+      "postgresql": "5",
+      "mysql": "4",
+      "mongodb": "3",
+      "firebase": "3",
+      "redis": "2",
+      "docker": "3",
+      "git": "6",
+      "github": "6",
+      "aws": "3",
+      "amazon web services": "3",
+      "azure": "3",
+      "microsoft azure": "3",
+      "gcp": "2",
+      "google cloud": "2",
+      "kubernetes": "2",
+      "k8s": "2",
+      "terraform": "2",
+      "ansible": "2",
+      "ci/cd": "3",
+      "selenium": "4",
+      "puppeteer": "3",
+      "pytest": "4",
+      "jest": "3",
+      "rest": "5",
+      "restful": "5",
+      "api": "5",
+      "api integration": "5",
+      "integração de api": "5",
+      "graphql": "2",
+      "version control": "6",
+      "controle de versão": "6",
+      "agile": "5",
+      "scrum": "4",
+      "kanban": "3",
+      "java": "5",
+      "spring": "3",
+      "spring boot": "3",
+      ".net": "2",
+      "c#": "2",
+      "php": "2",
+      "ruby": "1",
+      "go": "3",
+      "golang": "3",
+      "go (programming language)": "3",
+      "rust": "2",
+      "kotlin": "2",
+      "swift": "1",
+      "swiftui": "1",
+      "objective-c": "1",
+      "ios": "1",
+      "ios development": "1",
+      "ios applications": "1",
+      "android": "2",
+      "jira": "4",
+      "confluence": "3",
+      "jenkins": "2",
+      "gitlab": "3"
+    }
+  },
+  "salary": {
+    "desired_salary": 5500,
+    "current_ctc": 4287,
+    "notice_period": 30
+  },
+  "_metadata": {
+    "migrated_at": "2026-01-27T23:53:33.951419",
+    "source": "config/*.py",
+    "version": "1.0.0",
+    "tenant_id": "default",
+    "user_id": "default-user"
+  }
+}

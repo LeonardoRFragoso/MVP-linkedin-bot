@@ -1,0 +1,8 @@
+Place your icon files here:
+- icon.png (512x512 for Linux)
+- icon.ico (256x256 for Windows)
+- icon.icns (for macOS)
+
+You can generate these from a single PNG using tools like:
+- https://www.electron.build/icons
+- https://iconverticons.com/online/

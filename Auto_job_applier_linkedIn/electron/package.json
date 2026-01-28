@@ -1,0 +1,83 @@
+{
+  "name": "linkedin-bot-desktop",
+  "version": "1.0.0",
+  "description": "LinkedIn Bot - Automatize suas candidaturas no LinkedIn",
+  "main": "main.js",
+  "author": "LinkedIn Bot Team",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "set NODE_ENV=development && electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.linkedinbot.app",
+    "productName": "LinkedIn Bot",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "assets/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!**/__pycache__/**",
+          "!**/*.pyc",
+          "!**/venv/**"
+        ]
+      },
+      {
+        "from": "../frontend/.next",
+        "to": "frontend/.next"
+      },
+      {
+        "from": "../frontend/public",
+        "to": "frontend/public"
+      },
+      {
+        "from": "../frontend/package.json",
+        "to": "frontend/package.json"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "LinkedIn Bot"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  }
+}

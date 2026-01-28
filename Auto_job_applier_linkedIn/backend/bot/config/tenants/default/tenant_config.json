@@ -1,0 +1,29 @@
+{
+  "tenant": {
+    "id": "default",
+    "name": "Default",
+    "created_at": "2026-01-27T23:53:33.956799",
+    "status": "active"
+  },
+  "branding": {
+    "company_name": "LinkedIn Job Bot",
+    "logo_url": "",
+    "colors": {
+      "primary": "#0077B5",
+      "secondary": "#00A0DC",
+      "accent": "#313335"
+    },
+    "theme": "light"
+  },
+  "features": {
+    "max_users": 10,
+    "max_applications_per_day": 100,
+    "ai_enabled": true,
+    "custom_domain": false
+  },
+  "settings": {
+    "timezone": "America/Sao_Paulo",
+    "language": "pt-BR",
+    "notification_email": ""
+  }
+}

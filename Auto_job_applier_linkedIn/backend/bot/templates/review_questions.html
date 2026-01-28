@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisão de Perguntas - LinkedIn Bot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 16px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .filters {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .filters input, .filters select {
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .filters input:focus, .filters select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .question-label {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            flex: 1;
+        }
+
+        .question-type {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 15px;
+        }
+
+        .question-type.select { background: #48bb78; }
+        .question-type.radio { background: #ed8936; }
+        .question-type.text { background: #4299e1; }
+        .question-type.textarea { background: #9f7aea; }
+
+        .question-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #718096;
+        }
+
+        .question-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge {
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge.verified {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge.unverified {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .answer-section {
+            margin: 20px 0;
+        }
+
+        .answer-section label {
+            display: block;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .answer-section input, .answer-section textarea, .answer-section select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .answer-section input:focus, .answer-section textarea:focus, .answer-section select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .answer-section textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .options-list {
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .options-list strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .option-item {
+            padding: 5px 0;
+        }
+
+        .jobs-list {
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .jobs-list strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .job-item {
+            padding: 6px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .job-item:last-child {
+            border-bottom: none;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 12px;
+            padding: 60px 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .empty-state h2 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #718096;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Banco de Perguntas - LinkedIn Bot</h1>
+            <p>Revise e edite as respostas para perguntas encontradas nas candidaturas</p>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="number" id="total-questions">0</div>
+                <div class="label">Total de Perguntas</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="verified-questions">0</div>
+                <div class="label">Verificadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="unverified-questions">0</div>
+                <div class="label">Pendentes</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <input type="text" id="search" placeholder="🔍 Buscar pergunta..." style="width: 300px;">
+            <select id="filter-type">
+                <option value="">Todos os tipos</option>
+                <option value="select">Select</option>
+                <option value="radio">Radio</option>
+                <option value="text">Text</option>
+                <option value="textarea">Textarea</option>
+            </select>
+            <select id="filter-verified">
+                <option value="">Todos</option>
+                <option value="verified">Verificadas</option>
+                <option value="unverified">Não verificadas</option>
+            </select>
+            <button class="btn btn-primary" onclick="saveAll()">💾 Salvar Todas</button>
+        </div>
+
+        <div id="questions-container"></div>
+        <div class="loading" id="loading">Carregando perguntas...</div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let questionsData = [];
+        let filteredQuestions = [];
+
+        async function loadQuestions() {
+            try {
+                const response = await fetch('/api/questions');
+                const data = await response.json();
+                questionsData = data.questions;
+                filteredQuestions = questionsData;
+                
+                updateStats(data.stats);
+                renderQuestions();
+                document.getElementById('loading').style.display = 'none';
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                showToast('❌ Erro ao carregar perguntas', 'error');
+            }
+        }
+
+        function updateStats(stats) {
+            document.getElementById('total-questions').textContent = stats.total_questions;
+            document.getElementById('verified-questions').textContent = stats.verified_questions;
+            document.getElementById('unverified-questions').textContent = stats.unverified_questions;
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            
+            if (filteredQuestions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h2>Nenhuma pergunta encontrada</h2>
+                        <p>As perguntas aparecerão aqui conforme você se candidata a vagas</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredQuestions.map((q, index) => `
+                <div class="question-card" id="card-${q.hash}">
+                    <div class="question-header">
+                        <div class="question-label">${escapeHtml(q.label)}</div>
+                        <span class="question-type ${q.type}">${q.type}</span>
+                    </div>
+                    
+                    <div class="question-meta">
+                        <span class="${q.verified ? 'badge verified' : 'badge unverified'}">
+                            ${q.verified ? '✓ Verificada' : '⚠ Não verificada'}
+                        </span>
+                        <span>📊 Vista ${q.times_seen}x</span>
+                        <span>🕒 ${formatDate(q.last_seen)}</span>
+                    </div>
+
+                    <div class="answer-section">
+                        <label>Resposta:</label>
+                        ${renderAnswerField(q)}
+                        ${q.options && q.options.length > 0 ? `
+                            <div class="options-list">
+                                <strong>Opções disponíveis:</strong>
+                                ${q.options.map(opt => `<div class="option-item">• ${escapeHtml(opt)}</div>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    ${q.jobs && q.jobs.length > 0 ? `
+                        <div class="jobs-list">
+                            <strong>Vagas onde apareceu:</strong>
+                            ${q.jobs.map(job => `
+                                <div class="job-item">
+                                    ${job.job_title || 'N/A'} (ID: ${job.job_id || 'N/A'})
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="saveQuestion('${q.hash}')">💾 Salvar</button>
+                        <button class="btn btn-success" onclick="markVerified('${q.hash}')">✓ Marcar como Verificada</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAnswerField(q) {
+            const id = `answer-${q.hash}`;
+            
+            if (q.type === 'textarea') {
+                return `<textarea id="${id}" placeholder="Digite a resposta...">${escapeHtml(q.answer || '')}</textarea>`;
+            } else if (q.type === 'select' || q.type === 'radio') {
+                let options = q.options || [];
+                
+                // Se options é um array com uma única string contendo todas as opções
+                if (options.length === 1 && (options[0].includes(',') || options[0].includes('"'))) {
+                    // Extrair opções da string malformada
+                    const optStr = options[0].replace(/\\/g, '').replace(/"/g, '');
+                    options = optStr.split(',')
+                        .map(opt => opt.trim())
+                        .filter(opt => opt && 
+                            opt !== 'Selecionar opção' && 
+                            opt !== 'Select an option' && 
+                            opt !== 'Seleciona una opción' &&
+                            opt !== 'Selecciona una opção' &&
+                            opt !== 'Selecciona una opción');
+                }
+                
+                // Se ainda vazio, tentar extrair do label
+                if (options.length === 0 && q.label) {
+                    const bracketMatch = q.label.match(/\[(.*?)\]/);
+                    if (bracketMatch) {
+                        const insideBrackets = bracketMatch[1];
+                        const quotedMatches = insideBrackets.match(/"([^"]+)"/g);
+                        if (quotedMatches) {
+                            options = quotedMatches
+                                .map(opt => opt.replace(/^"|"$/g, '').trim())
+                                .filter(opt => opt && 
+                                    opt !== 'Selecionar opção' && 
+                                    opt !== 'Select an option' && 
+                                    opt !== 'Seleciona una opción' &&
+                                    opt !== 'Selecciona una opção' &&
+                                    opt !== 'Selecciona una opción');
+                        }
+                    }
+                }
+                
+                // Filtrar novamente para remover placeholders
+                options = options.filter(opt => 
+                    opt && 
+                    opt !== 'Selecionar opção' && 
+                    opt !== 'Select an option' && 
+                    opt !== 'Seleciona una opción' &&
+                    opt !== 'Selecciona una opção' &&
+                    opt !== 'Selecciona una opción'
+                );
+                
+                if (options.length > 0) {
+                    return `
+                        <select id="${id}">
+                            <option value="">Selecione uma opção...</option>
+                            ${options.map(opt => `
+                                <option value="${escapeHtml(opt)}" ${opt === q.answer ? 'selected' : ''}>
+                                    ${escapeHtml(opt)}
+                                </option>
+                            `).join('')}
+                        </select>
+                    `;
+                } else {
+                    return `<input type="text" id="${id}" value="${escapeHtml(q.answer || '')}" placeholder="Digite a resposta...">`;
+                }
+            } else {
+                return `<input type="text" id="${id}" value="${escapeHtml(q.answer || '')}" placeholder="Digite a resposta...">`;
+            }
+        }
+
+        async function saveQuestion(hash) {
+            const answerElement = document.getElementById(`answer-${hash}`);
+            const newAnswer = answerElement.value;
+
+            try {
+                const response = await fetch('/api/update_question', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hash, answer: newAnswer })
+                });
+
+                if (response.ok) {
+                    showToast('✅ Resposta salva com sucesso!');
+                    const question = questionsData.find(q => q.hash === hash);
+                    if (question) {
+                        question.answer = newAnswer;
+                        question.verified = true;
+                    }
+                    renderQuestions();
+                } else {
+                    showToast('❌ Erro ao salvar resposta', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving question:', error);
+                showToast('❌ Erro ao salvar resposta', 'error');
+            }
+        }
+
+        async function markVerified(hash) {
+            try {
+                const response = await fetch('/api/verify_question', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ hash, verified: true })
+                });
+
+                if (response.ok) {
+                    showToast('✅ Pergunta marcada como verificada!');
+                    const question = questionsData.find(q => q.hash === hash);
+                    if (question) question.verified = true;
+                    await loadQuestions();
+                } else {
+                    showToast('❌ Erro ao marcar pergunta', 'error');
+                }
+            } catch (error) {
+                console.error('Error marking verified:', error);
+                showToast('❌ Erro ao marcar pergunta', 'error');
+            }
+        }
+
+        async function saveAll() {
+            let saved = 0;
+            for (const q of filteredQuestions) {
+                const answerElement = document.getElementById(`answer-${q.hash}`);
+                if (answerElement) {
+                    await saveQuestion(q.hash);
+                    saved++;
+                }
+            }
+            showToast(`✅ ${saved} respostas salvas com sucesso!`);
+            await loadQuestions();
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const typeFilter = document.getElementById('filter-type').value;
+            const verifiedFilter = document.getElementById('filter-verified').value;
+
+            filteredQuestions = questionsData.filter(q => {
+                const matchesSearch = !search || q.label.toLowerCase().includes(search);
+                const matchesType = !typeFilter || q.type === typeFilter;
+                const matchesVerified = !verifiedFilter || 
+                    (verifiedFilter === 'verified' && q.verified) ||
+                    (verifiedFilter === 'unverified' && !q.verified);
+                
+                return matchesSearch && matchesType && matchesVerified;
+            });
+
+            renderQuestions();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'error' ? '#f56565' : '#48bb78';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(isoString) {
+            if (!isoString) return 'N/A';
+            const date = new Date(isoString);
+            return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        document.getElementById('search').addEventListener('input', applyFilters);
+        document.getElementById('filter-type').addEventListener('change', applyFilters);
+        document.getElementById('filter-verified').addEventListener('change', applyFilters);
+
+        loadQuestions();
+    </script>
+</body>
+</html>

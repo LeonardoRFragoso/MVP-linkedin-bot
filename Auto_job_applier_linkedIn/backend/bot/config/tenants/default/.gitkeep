@@ -1,0 +1,5 @@
+# This directory will contain tenant-specific configuration files
+# Each tenant will have their own subdirectory with:
+# - user_config.json (personal info, search preferences)
+# - branding.json (theme, colors, logo)
+# - settings.json (feature flags, limits)
