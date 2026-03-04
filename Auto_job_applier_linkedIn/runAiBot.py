@@ -937,7 +937,8 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
     unique_questions = []
     for q in all_questions:
         try:
-            q_id = q.get_attribute('id') or id(q)
+            # Usa hash do objeto em vez de id() para evitar conflito com variável 'id'
+            q_id = q.get_attribute('id') or str(hash(q))
             if q_id not in seen:
                 seen.add(q_id)
                 unique_questions.append(q)
