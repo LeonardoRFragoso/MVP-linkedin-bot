@@ -938,10 +938,42 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
     # NOVA ABORDAGEM: Procurar por inputs/selects/textareas diretamente
     print_lg("🔍 Iniciando preenchimento de formulário...")
     
-    # Encontrar todos os inputs, selects e textareas
+    # Aguardar um pouco para o modal carregar completamente
+    buffer(1)
+    
+    # Encontrar todos os inputs, selects e textareas com múltiplas estratégias
     all_inputs = []
+    
+    # Estratégia 1: inputs padrão
     try:
-        all_inputs.extend(modal.find_elements(By.XPATH, ".//input[@type='text' or @type='number' or @type='email' or @type='tel' or not(@type)]"))
+        all_inputs.extend(modal.find_elements(By.XPATH, ".//input[@type='text' or @type='number' or @type='email' or @type='tel']"))
+    except:
+        pass
+    
+    # Estratégia 2: inputs sem type (geralmente text)
+    try:
+        inputs_no_type = modal.find_elements(By.XPATH, ".//input[not(@type) or @type='']")
+        for inp in inputs_no_type:
+            if inp not in all_inputs:
+                all_inputs.append(inp)
+    except:
+        pass
+    
+    # Estratégia 3: inputs dentro de form-elements do LinkedIn
+    try:
+        form_inputs = modal.find_elements(By.XPATH, ".//div[contains(@class, 'fb-dash-form-element')]//input")
+        for inp in form_inputs:
+            if inp not in all_inputs:
+                all_inputs.append(inp)
+    except:
+        pass
+    
+    # Estratégia 4: inputs com aria-label
+    try:
+        aria_inputs = modal.find_elements(By.XPATH, ".//input[@aria-label or @aria-describedby]")
+        for inp in aria_inputs:
+            if inp not in all_inputs and inp.get_attribute('type') not in ['hidden', 'file', 'checkbox', 'radio', 'submit', 'button']:
+                all_inputs.append(inp)
     except:
         pass
     
@@ -1134,15 +1166,38 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
             # Localização
             elif any(word in label for word in ['cidade', 'city', 'location', 'localização']) and not ('company' in label or 'empresa' in label):
                 answer = current_city if current_city else work_location
+                is_location_field = True
             else:
                 answer = answer_common_questions(label, "")
+                is_location_field = False
             
             # Preenche o input
             if answer:
                 try:
                     input_elem.clear()
                     input_elem.send_keys(str(answer))
-                    print_lg(f"✅ Preenchido: '{label_org[:60]}' = '{str(answer)[:50]}'")
+                    
+                    # Para campos de localização com autocomplete, selecionar primeira opção
+                    if is_location_field:
+                        buffer(1.5)  # Aguardar dropdown aparecer
+                        try:
+                            # Tentar clicar na primeira opção do dropdown
+                            first_option = WebDriverWait(driver, 3).until(
+                                EC.element_to_be_clickable((By.XPATH, 
+                                    "//div[contains(@class, 'basic-typeahead__selectable') or contains(@class, 'typeahead-result')]"
+                                ))
+                            )
+                            first_option.click()
+                            print_lg(f"✅ Selecionado do dropdown: '{label_org[:60]}'")
+                        except:
+                            # Fallback: usar ARROW_DOWN + ENTER
+                            actions.send_keys(Keys.ARROW_DOWN).perform()
+                            buffer(0.3)
+                            actions.send_keys(Keys.ENTER).perform()
+                            print_lg(f"✅ Preenchido (com ENTER): '{label_org[:60]}' = '{str(answer)[:50]}'")
+                    else:
+                        print_lg(f"✅ Preenchido: '{label_org[:60]}' = '{str(answer)[:50]}'")
+                    
                     questions_list.add((label_org, str(answer), "text", current_value))
                 except Exception as e:
                     print_lg(f"❌ Erro ao preencher '{label_org}': {e}")
@@ -2116,6 +2171,23 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                     # Case 1: Easy Apply Button (supports English and Portuguese)
                     if try_xp(driver, ".//button[contains(@class,'jobs-apply-button') and contains(@class, 'artdeco-button--3') and (contains(@aria-label, 'Easy') or contains(@aria-label, 'Candidatura simplificada') or contains(., 'Candidatura simplificada'))]"):
                         try: 
+                            # Fechar modal de "Lembrete de segurança" se aparecer
+                            try:
+                                safety_modal = WebDriverWait(driver, 2).until(
+                                    EC.presence_of_element_located((By.XPATH, 
+                                        '//div[contains(@class, "artdeco-modal") and .//h2[contains(text(), "Lembrete") or contains(text(), "safety") or contains(text(), "Security")]]'
+                                    ))
+                                )
+                                # Clicar em "Continuar candidatura" ou "Continue applying"
+                                continue_btn = safety_modal.find_element(By.XPATH, 
+                                    './/button[contains(@class, "artdeco-button--primary") or .//span[contains(text(), "Continuar") or contains(text(), "Continue")]]'
+                                )
+                                continue_btn.click()
+                                print_lg("✅ Fechado modal de lembrete de segurança")
+                                buffer(1)
+                            except:
+                                pass
+                            
                             try: 
                                 errored = ""
                                 modal = find_by_class(driver, "jobs-easy-apply-modal")
@@ -2167,16 +2239,38 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                     questions_list = answer_questions(modal, questions_list, work_location, job_description=description)
                                     if useNewResume and not uploaded: uploaded, resume = upload_resume(modal, default_resume_path)
                                     
-                                    # NOVO: Tentar encontrar botão Next com retry
+                                    # Fechar qualquer dropdown de autocomplete aberto antes de clicar em Avançar
+                                    try:
+                                        open_dropdowns = driver.find_elements(By.XPATH, "//div[contains(@class, 'basic-typeahead__triggered-content') or contains(@class, 'typeahead-results')]")
+                                        if open_dropdowns:
+                                            actions.send_keys(Keys.ESCAPE).perform()
+                                            buffer(0.5)
+                                            print_lg("✅ Fechado dropdown de autocomplete aberto")
+                                    except:
+                                        pass
+                                    
+                                    # NOVO: Tentar encontrar botão Next com múltiplas estratégias
                                     next_button = None
-                                    try: next_button = modal.find_element(By.XPATH, './/span[normalize-space(.)="Revisar"]') 
-                                    except NoSuchElementException:  
-                                        try: next_button = modal.find_element(By.XPATH, './/span[normalize-space(.)="Rever"]')
-                                        except NoSuchElementException:
-                                            try: next_button = modal.find_element(By.XPATH, './/button[contains(span, "Avançar") or contains(span, "Próximo")]')
-                                            except NoSuchElementException:
-                                                try: next_button = modal.find_element(By.XPATH, './/button[@aria-label="Avançar para a próxima etapa" or contains(@aria-label, "Avançar")]')
-                                                except NoSuchElementException: next_button = None
+                                    next_button_strategies = [
+                                        './/span[normalize-space(.)="Revisar"]',
+                                        './/span[normalize-space(.)="Rever"]',
+                                        './/span[normalize-space(.)="Avançar"]',
+                                        './/span[normalize-space(.)="Próximo"]',
+                                        './/button[.//span[contains(text(), "Avançar") or contains(text(), "Próximo") or contains(text(), "Revisar")]]',
+                                        './/button[@aria-label="Avançar para a próxima etapa" or contains(@aria-label, "Avançar") or contains(@aria-label, "Continue")]',
+                                        './/footer//button[contains(@class, "artdeco-button--primary")]',
+                                    ]
+                                    
+                                    for strategy in next_button_strategies:
+                                        try:
+                                            next_button = modal.find_element(By.XPATH, strategy)
+                                            if next_button and next_button.is_displayed():
+                                                print_lg(f"✅ Found next button: {strategy[:50]}")
+                                                break
+                                        except:
+                                            continue
+                                    else:
+                                        next_button = None
                                     
                                     if next_button:
                                         try: next_button.click()
@@ -2321,7 +2415,10 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                     print_lg("Since, Submit Application failed, discarding the job application...")
                                     # if screenshot_name == "Not Available":  screenshot_name = screenshot(driver, job_id, "Failed to click Submit application")
                                     # else:   screenshot_name = [screenshot_name, screenshot(driver, job_id, "Failed to click Submit application")]
-                                    if errored == "nose": raise Exception("Failed to click Submit application 😑")
+                                    discard_job()
+                                    failed_job(job_id, job_link, resume, date_listed, "Failed to submit application", "Modal not found or submit failed", application_link, screenshot_name)
+                                    failed_count += 1
+                                    continue  # Skip saving as success
 
 
                         except Exception as e:
