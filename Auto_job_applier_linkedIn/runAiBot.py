@@ -441,7 +441,20 @@ def apply_filters() -> None:
             boolean_button_click(driver, actions, _loc("Easy Apply"))
             print_lg('✅ Easy Apply filter set LAST in modal')
 
-        show_results_button: WebElement = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[contains(@aria-label, "Apply current filters to show") or contains(@aria-label, "Aplicar filtro atual para exibir resultados") or .//span[normalize-space()="Exibir resultados" or normalize-space()="Show results"]]')))
+        # Tenta encontrar o botão "Show results" / "Exibir resultados" com múltiplas estratégias
+        try:
+            show_results_button: WebElement = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, 
+                    '//button[contains(@aria-label, "Apply current filters") or contains(@aria-label, "Aplicar filtro atual") or .//span[normalize-space()="Exibir resultados" or normalize-space()="Show results"]]'
+                ))
+            )
+        except:
+            # Fallback: procura por qualquer botão com texto "Exibir resultados" ou "Show results"
+            try:
+                show_results_button = driver.find_element(By.XPATH, '//button[.//span[contains(text(), "Exibir") or contains(text(), "Show")]]')
+            except:
+                # Último fallback: procura por botão no footer do modal
+                show_results_button = driver.find_element(By.XPATH, '//div[contains(@class, "search-reusables-filters-panel__footer")]//button[@data-control-name="all_filters_apply"]')
         
         # Final verification: ensure Easy Apply filter is still active
         if easy_apply_only:
