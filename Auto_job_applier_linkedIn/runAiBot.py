@@ -1164,6 +1164,10 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
                     else:
                         answer = "1450"  # R$ 8.000 ÷ 5.5 = $1.450
                         print_lg(f"✅ Detectado: Salário DESEJADO em USD, respondendo: $1450")
+            # IMPORTANTE: "Aspiración de ingreso mensual en USD" - salário mensal em USD (ESPANHOL)
+            elif ('aspiración' in label or 'ingreso' in label or 'salario' in label) and ('usd' in label or 'mensual' in label):
+                answer = "1500"  # $1500/mês em USD
+                print_lg(f"✅ Detectado: Salário mensal em USD (espanhol), respondendo: $1500")
             # IMPORTANTE: "How long have you been working with X?" - espera número decimal
             elif ('how long' in label and 'working with' in label) or ('how long have' in label and 'been' in label):
                 answer = "3"  # Padrão: 3 anos
@@ -1172,6 +1176,10 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
             elif ('rate' in label and 'usd' in label) or ('taxa' in label and 'hora' in label):
                 answer = "25"  # $25/hora
                 print_lg(f"✅ Detectado: Taxa/hora em USD, respondendo: $25")
+            # IMPORTANTE: Perguntas sobre ANOS de experiência em ESPANHOL (años de experiencia)
+            elif ('años de experiencia' in label or 'cuántos años' in label or 'años' in label) and ('experiencia' in label or 'rol' in label or 'construcción' in label or 'gestión' in label):
+                answer = "3"  # Padrão: 3 anos
+                print_lg(f"✅ Detectado: Anos de experiência (espanhol), respondendo: 3")
             # IMPORTANTE: Perguntas sobre ANOS de experiência com tecnologias (ANTES de Yes/No)
             elif ('how many years' in label or 'quantos anos' in label or 'years of experience' in label or 'anos de experiência' in label or 'years of work experience' in label) and ('with' in label or 'com' in label or 'in' in label or 'em' in label):
                 # Perguntas sobre anos de experiência com tecnologias específicas
@@ -2359,7 +2367,21 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                     else:
                                         next_button = None
                                     
+                                    # Detectar loop: se clicamos em Revisar mais de 3 vezes, sair
+                                    if not hasattr(answer_questions, 'revisar_count'):
+                                        answer_questions.revisar_count = 0
+                                    
                                     if next_button:
+                                        button_text = next_button.text.lower() if next_button.text else ""
+                                        if 'revisar' in button_text or 'review' in button_text:
+                                            answer_questions.revisar_count += 1
+                                            if answer_questions.revisar_count > 5:
+                                                print_lg(f"⚠️ Loop detectado: clicamos em Revisar {answer_questions.revisar_count} vezes. Saindo...")
+                                                answer_questions.revisar_count = 0
+                                                break
+                                        else:
+                                            answer_questions.revisar_count = 0  # Reset se não é Revisar
+                                        
                                         try:
                                             # Se encontrou um span, clicar no botão pai
                                             if next_button.tag_name == 'span':
