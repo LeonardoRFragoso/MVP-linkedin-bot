@@ -1140,9 +1140,15 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
                 print_lg(f"✅ Detectado: Pergunta sobre ANOS de experiência com tecnologia, respondendo: {answer}")
             # Perguntas sobre experiência com tecnologia (Do you have experience with X?)
             elif ('do you have' in label or 'have you' in label or 'você tem' in label or 'possui' in label) and ('experience' in label or 'experiência' in label) and ('with' in label or 'com' in label or 'working with' in label):
-                # Perguntas "Do you have experience with [technology]?" → Sempre "Yes"
-                answer = "Yes"
-                print_lg(f"✅ Detectado: Pergunta sobre experiência com tecnologia (Yes/No), respondendo: Yes")
+                # Verificar se é um textarea (espera descrição) ou input (espera Yes/No)
+                if input_elem.tag_name == 'textarea':
+                    # Textarea espera descrição - fornecer resposta descritiva
+                    answer = "Yes, I have professional experience working with this technology in production environments, including development, implementation and maintenance of solutions."
+                    print_lg(f"✅ Detectado: Pergunta sobre experiência (textarea), respondendo com descrição")
+                else:
+                    # Input normal - responder Yes/No
+                    answer = "Yes"
+                    print_lg(f"✅ Detectado: Pergunta sobre experiência com tecnologia (Yes/No), respondendo: Yes")
             # Perguntas Yes/No genéricas
             elif any(word in label for word in ['sim', 'yes', 'agree', 'aceita', 'accept', 'eligible', 'autorização', 'are you', 'do you', 'have you', 'can you', 'will you', 'você é', 'você tem', 'você pode']):
                 answer = "Yes"
@@ -2273,7 +2279,13 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                         next_button = None
                                     
                                     if next_button:
-                                        try: next_button.click()
+                                        try:
+                                            # Se encontrou um span, clicar no botão pai
+                                            if next_button.tag_name == 'span':
+                                                parent_button = next_button.find_element(By.XPATH, './ancestor::button')
+                                                parent_button.click()
+                                            else:
+                                                next_button.click()
                                         except ElementClickInterceptedException: 
                                             print_lg("⚠️ Click interceptado, saindo do loop...")
                                             break
