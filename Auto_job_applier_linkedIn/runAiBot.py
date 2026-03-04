@@ -896,9 +896,9 @@ def answer_common_questions(label: str, answer: str) -> str:
         elif 'clt' in label_lower or 'carteira assinada' in label_lower or 'carteira' in label_lower:
             print_lg(f"Salary question (CLT): '{label}' -> {desired_salary}")
             return str(desired_salary)
-        elif 'pj' in label_lower or 'pessoa jurídica' in label_lower or 'cnpj' in label_lower:
-            print_lg(f"Salary question (PJ): '{label}' -> 7000")
-            return "7000"
+        elif 'pj' in label_lower or 'pessoa jurídica' in label_lower or 'pessoa juridica' in label_lower or 'cnpj' in label_lower or 'regime pj' in label_lower:
+            print_lg(f"Salary question (PJ): '{label}' -> 8000")
+            return "8000"
         else:
             # Default to desired salary
             print_lg(f"Salary question (default): '{label}' -> {desired_salary}")

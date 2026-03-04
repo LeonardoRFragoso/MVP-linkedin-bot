@@ -1,3 +1,6 @@
-2026/03/04-08:45:20.995 1274f Reusing MANIFEST /home/leonardo/dev/MVP-linkedin-bot/Auto_job_applier_linkedIn/chrome_profile_linkedin_bot/Default/Session Storage/MANIFEST-000001
-2026/03/04-08:45:20.996 1274f Recovering log #31
-2026/03/04-08:45:21.001 1274f Reusing old log /home/leonardo/dev/MVP-linkedin-bot/Auto_job_applier_linkedIn/chrome_profile_linkedin_bot/Default/Session Storage/000031.log 
+2026/03/04-08:50:04.637 136b6 Reusing MANIFEST /home/leonardo/dev/MVP-linkedin-bot/Auto_job_applier_linkedIn/chrome_profile_linkedin_bot/Default/Session Storage/MANIFEST-000001
+2026/03/04-08:50:04.638 136b6 Recovering log #31
+2026/03/04-08:50:04.640 136b6 Reusing old log /home/leonardo/dev/MVP-linkedin-bot/Auto_job_applier_linkedIn/chrome_profile_linkedin_bot/Default/Session Storage/000031.log 
+2026/03/04-08:50:05.453 136b6 Level-0 table #35: started
+2026/03/04-08:50:05.466 136b6 Level-0 table #35: 16532 bytes OK
+2026/03/04-08:50:05.469 136b6 Delete type=0 #31

@@ -245,8 +245,11 @@ smart_answers = {
     # Confidence / Self assessment
     "confiança|confidence|auto avaliação|self assessment|nível de|level of": confidence_level,
     
-    # Salary CTI (from the image)
-    "pretensão salarial para contratação cti|cti|clt": "5000",
+    # Salary PJ (regime PJ)
+    "pretensão salarial.*regime pj|pretensão salarial.*pj|salário.*regime pj|salary.*pj|contratação.*pj": "8000",
+    
+    # Salary CTI/CLT (from the image)
+    "pretensão salarial para contratação cti|cti|clt|pretensão salarial.*clt|salário.*clt": "5000",
     
     # Technical skills dropdowns - CloudFormation, Terraform, Infrastructure as Code
     "cloudformation|terraform|infra as code|infrastructure as code|iac": "Sim",
