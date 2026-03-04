@@ -706,10 +706,27 @@ def get_job_description(
                 skipReason = "Found a Bad Word in About Job"
                 skip = True
                 break
-        if not skip and security_clearance == False and ('polygraph' in jobDescriptionLow or 'clearance' in jobDescriptionLow or 'secret' in jobDescriptionLow):
-            skipMessage = f'\n{jobDescription}\n\nFound "Clearance" or "Polygraph". Skipping this job!\n'
-            skipReason = "Asking for Security clearance"
-            skip = True
+        # Verificar clearance governamental (apenas contexto US/governamental, não cloud security)
+        if not skip and security_clearance == False:
+            # Palavras que indicam clearance governamental real
+            gov_clearance_phrases = [
+                'security clearance required',
+                'active security clearance',
+                'top secret clearance',
+                'secret clearance required',
+                'ts/sci clearance',
+                'polygraph',
+                'us security clearance',
+                'government clearance',
+                'dod clearance',
+                'federal clearance'
+            ]
+            for phrase in gov_clearance_phrases:
+                if phrase in jobDescriptionLow:
+                    skipMessage = f'\n{jobDescription}\n\nFound "{phrase}". Skipping this job!\n'
+                    skipReason = "Asking for Security clearance"
+                    skip = True
+                    break
         if not skip:
             if did_masters and 'master' in jobDescriptionLow:
                 print_lg(f'Found the word "master" in \n{jobDescription}')
@@ -790,6 +807,20 @@ def answer_common_questions(label: str, answer: str) -> str:
     
     # Convert label to lowercase for matching
     label_lower = label.lower()
+    
+    # PRIORITY 0: Headline, Summary, Cover Letter - MUST be handled first
+    if label_lower == 'headline' or label_lower.startswith('headline'):
+        from config.questions import linkedin_headline
+        print_lg(f"Headline question detected: '{label}' -> using linkedin_headline")
+        return linkedin_headline if linkedin_headline else "Desenvolvedor Full Stack | Python, Django, Flask, React | Especialista em Automações e APIs RESTful"
+    
+    if label_lower == 'summary' or (label_lower.startswith('summary') and len(label_lower) < 30):
+        print_lg(f"Summary question detected: '{label}' -> using linkedin_summary")
+        return linkedin_summary.strip() if linkedin_summary else "Desenvolvedor Full Stack com 8+ anos de experiência em Python, Django, Flask, React e Node.js. Especialista em automações, APIs RESTful e integração de sistemas."
+    
+    if 'cover letter' in label_lower or 'carta de apresentação' in label_lower:
+        print_lg(f"Cover letter question detected: '{label}' -> using cover_letter")
+        return cover_letter.strip() if cover_letter else ""
     
     # PRIORITY 1: Time/duration questions - these ALWAYS need numeric answers
     # Check for "há quanto tempo", "how long", "quanto tempo", "há quantos anos" patterns
@@ -1087,12 +1118,25 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
             
             label = label_org.lower()
             answer = ""
+            is_location_field = False  # Inicializar variável
             
             # Determina a resposta baseado no label
             # IMPORTANTE: Verificar perguntas específicas ANTES de palavras-chave genéricas
             
+            # HEADLINE - usar headline configurado
+            if label == 'headline' or 'headline' in label:
+                answer = "Desenvolvedor Full Stack | Python, Django, Flask, React | Especialista em Automações e APIs RESTful"
+                print_lg(f"✅ Detectado: Headline, respondendo com título profissional")
+            # SUMMARY - usar linkedin_summary
+            elif label == 'summary' or (label.startswith('summary') and len(label) < 20):
+                answer = linkedin_summary if linkedin_summary else "Desenvolvedor Full Stack com 8+ anos de experiência em Python, Django, Flask, React e Node.js. Especialista em automações, APIs RESTful e integração de sistemas."
+                print_lg(f"✅ Detectado: Summary, respondendo com resumo profissional")
+            # Perguntas "How many years of experience as [role]?" - NÚMERO, não Yes/No
+            elif ('how many years' in label or 'years of experience' in label) and ('as a' in label or 'como' in label or 'developer' in label or 'engineer' in label):
+                answer = years_of_experience
+                print_lg(f"✅ Detectado: Anos de experiência como profissional, respondendo: {answer}")
             # Pergunta específica: "Is your résumé in English?" - espera número (escala)
-            if ('résumé' in label or 'resume' in label or 'cv' in label or 'currículo' in label) and ('english' in label or 'inglês' in label or 'ingles' in label):
+            elif ('résumé' in label or 'resume' in label or 'cv' in label or 'currículo' in label) and ('english' in label or 'inglês' in label or 'ingles' in label):
                 answer = "10"  # Escala máxima, indicando que sim, está em inglês
                 print_lg(f"✅ Detectado: Pergunta sobre currículo em inglês (escala), respondendo: 10")
             # Pergunta específica: Salário em USD/Euros (atual ou desejado)
