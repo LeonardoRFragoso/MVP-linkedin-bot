@@ -2345,15 +2345,17 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                         pass
                                     
                                     # NOVO: Tentar encontrar botão Next com múltiplas estratégias
+                                    # IMPORTANTE: NÃO incluir botão genérico do footer - pode ser Submit e fechar o modal
                                     next_button = None
                                     next_button_strategies = [
-                                        './/span[normalize-space(.)="Revisar"]',
-                                        './/span[normalize-space(.)="Rever"]',
                                         './/span[normalize-space(.)="Avançar"]',
                                         './/span[normalize-space(.)="Próximo"]',
-                                        './/button[.//span[contains(text(), "Avançar") or contains(text(), "Próximo") or contains(text(), "Revisar")]]',
+                                        './/span[normalize-space(.)="Revisar"]',
+                                        './/span[normalize-space(.)="Rever"]',
+                                        './/span[normalize-space(.)="Review"]',
+                                        './/span[normalize-space(.)="Next"]',
+                                        './/button[.//span[contains(text(), "Avançar") or contains(text(), "Próximo")]]',
                                         './/button[@aria-label="Avançar para a próxima etapa" or contains(@aria-label, "Avançar") or contains(@aria-label, "Continue")]',
-                                        './/footer//button[contains(@class, "artdeco-button--primary")]',
                                     ]
                                     
                                     for strategy in next_button_strategies:
