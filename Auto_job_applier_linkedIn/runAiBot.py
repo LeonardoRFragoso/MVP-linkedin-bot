@@ -1309,8 +1309,24 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
             answer = "Yes"
             
             # Determina resposta baseada no tipo de pergunta
+            # NÍVEL DE INGLÊS
+            if 'english level' in label or 'english' in label or 'inglês' in label or 'ingles' in label:
+                answer = "Intermediate"
+                print_lg(f"✅ Detectado: Nível de inglês, respondendo: Intermediate")
+            # PAÍS DE RESIDÊNCIA
+            elif 'country' in label and ('reside' in label or 'live' in label or 'located' in label):
+                answer = "Brazil"
+                print_lg(f"✅ Detectado: País de residência, respondendo: Brazil")
+            # ANOS DE EXPERIÊNCIA (selects)
+            elif ('how many years' in label or 'years of experience' in label or 'anos de experiência' in label) and ('experience' in label or 'experiência' in label):
+                answer = "3"
+                print_lg(f"✅ Detectado: Anos de experiência (select), respondendo: 3")
+            # COMO SOUBE DA VAGA
+            elif 'how did you hear' in label or 'como soube' in label or 'como conheceu' in label:
+                answer = "LinkedIn"
+                print_lg(f"✅ Detectado: Como soube da vaga, respondendo: LinkedIn")
             # GÊNERO - responder "Male" ou "Masculino"
-            if 'gender' in label or 'gênero' in label or 'sexo' in label:
+            elif 'gender' in label or 'gênero' in label or 'sexo' in label:
                 answer = "Male"
                 print_lg(f"✅ Detectado: Pergunta de gênero, respondendo: Male")
             # ETNIA/RAÇA
