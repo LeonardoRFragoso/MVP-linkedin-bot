@@ -1047,7 +1047,7 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
     
     for input_elem in all_inputs:
         try:
-            input_id = input_elem.get_attribute('id') or id(input_elem)
+            input_id = input_elem.get_attribute('id') or str(hash(input_elem))
             if input_id in processed_inputs:
                 continue
             processed_inputs.add(input_id)
@@ -1263,7 +1263,7 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
     for Question in all_questions:
         try:
             # Pula se já foi processado
-            question_id = Question.get_attribute('id') or id(Question)
+            question_id = Question.get_attribute('id') or str(hash(Question))
             if question_id in processed_inputs:
                 continue
             
