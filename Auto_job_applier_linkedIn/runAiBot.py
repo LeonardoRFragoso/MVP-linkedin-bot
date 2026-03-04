@@ -1300,8 +1300,29 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
             label = label_org.lower()
             answer = "Yes"
             
-            # Determina resposta
-            if any(word in label for word in ['sim', 'yes', 'agree', 'aceita']):
+            # Determina resposta baseada no tipo de pergunta
+            # GÊNERO - responder "Male" ou "Masculino"
+            if 'gender' in label or 'gênero' in label or 'sexo' in label:
+                answer = "Male"
+                print_lg(f"✅ Detectado: Pergunta de gênero, respondendo: Male")
+            # ETNIA/RAÇA
+            elif 'race' in label or 'ethnicity' in label or 'raça' in label or 'etnia' in label:
+                answer = "Prefer not to say"
+                print_lg(f"✅ Detectado: Pergunta de raça/etnia, respondendo: Prefer not to say")
+            # DEFICIÊNCIA
+            elif 'disability' in label or 'deficiência' in label or 'deficiencia' in label:
+                answer = "No"
+                print_lg(f"✅ Detectado: Pergunta de deficiência, respondendo: No")
+            # VETERANO
+            elif 'veteran' in label or 'veterano' in label or 'military' in label:
+                answer = "No"
+                print_lg(f"✅ Detectado: Pergunta de veterano, respondendo: No")
+            # LGBTQ+
+            elif 'lgbtq' in label or 'sexual orientation' in label or 'orientação sexual' in label:
+                answer = "Prefer not to say"
+                print_lg(f"✅ Detectado: Pergunta LGBTQ+, respondendo: Prefer not to say")
+            # Yes/No genérico
+            elif any(word in label for word in ['sim', 'yes', 'agree', 'aceita']):
                 answer = "Yes"
             elif any(word in label for word in ['não', 'no', 'disagree']):
                 answer = "No"
