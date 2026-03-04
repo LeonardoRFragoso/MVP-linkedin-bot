@@ -25,25 +25,42 @@ from selenium.webdriver.common.action_chains import ActionChains
 # Click Functions
 def wait_span_click(driver: WebDriver, text: str, time: float=5.0, click: bool=True, scroll: bool=True, scrollTop: bool=False) -> WebElement | bool:
     '''
-    Finds the span element with the given `text`.
-    - Returns `WebElement` if found, else `False` if not found.
+    - Waits for a max of `time` seconds for `span` element with the `text` to appear.
     - Clicks on it if `click = True`.
     - Will spend a max of `time` seconds in searching for each element.
     - Will scroll to the element if `scroll = True`.
     - Will scroll to the top if `scrollTop = True`.
     '''
-    if text:
+    if not text:
+        return False
+        
+    # Try multiple XPath strategies
+    strategies = [
+        f'.//span[normalize-space(.)="{text}"]',  # Original
+        f'.//span[contains(text(), "{text}")]',   # Contains text
+        f'.//div[normalize-space(.)="{text}"]',  # Div instead of span
+        f'.//button[normalize-space(.)="{text}"]', # Button
+        f'.//label[normalize-space(.)="{text}"]',  # Label
+        f'.//*[normalize-space(.)="{text}"]',      # Any element
+    ]
+    
+    for strategy in strategies:
         try:
-            button = WebDriverWait(driver,time).until(EC.presence_of_element_located((By.XPATH, './/span[normalize-space(.)="'+text+'"]')))
-            if scroll:  scroll_to_view(driver, button, scrollTop)
+            button = WebDriverWait(driver, time).until(
+                EC.presence_of_element_located((By.XPATH, strategy))
+            )
+            if scroll:  
+                scroll_to_view(driver, button, scrollTop)
             if click:
                 button.click()
                 buffer(click_gap)
+            print_lg(f"✅ Found '{text}' using strategy: {strategy}")
             return button
-        except Exception as e:
-            print_lg("Click Failed! Didn't find '"+text+"'")
-            # print_lg(e)
-            return False
+        except Exception:
+            continue
+    
+    print_lg(f"❌ Click Failed! Couldn't find '{text}' with any strategy")
+    return False
 
 def multi_sel(driver: WebDriver, texts: list, time: float=5.0) -> None:
     '''
@@ -83,13 +100,23 @@ def multi_sel_noWait(driver: WebDriver, texts: list, actions: ActionChains = Non
 def boolean_button_click(driver: WebDriver, actions: ActionChains, text: str) -> None:
     '''
     Tries to click on the boolean button with the given `text` text.
+    Checks current state before clicking to avoid toggling off.
     '''
     try:
         list_container = driver.find_element(By.XPATH, './/h3[normalize-space()="'+text+'"]/ancestor::fieldset')
         button = list_container.find_element(By.XPATH, './/input[@role="switch"]')
-        scroll_to_view(driver, button)
-        actions.move_to_element(button).click().perform()
-        buffer(click_gap)
+        
+        # Check current state before clicking
+        is_checked = button.get_attribute("aria-checked") == "true" or button.get_attribute("checked") == "true"
+        
+        if not is_checked:
+            scroll_to_view(driver, button)
+            actions.move_to_element(button).click().perform()
+            buffer(click_gap)
+            print_lg(f"✅ Activated boolean filter: {text}")
+        else:
+            print_lg(f"✅ Boolean filter already active: {text}")
+            
     except Exception as e:
         print_lg("Click Failed! Didn't find '"+text+"'")
         # print_lg(e)

@@ -442,19 +442,38 @@ def apply_filters() -> None:
             print_lg('✅ Easy Apply filter set LAST in modal')
 
         # Tenta encontrar o botão "Show results" / "Exibir resultados" com múltiplas estratégias
-        try:
-            show_results_button: WebElement = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, 
-                    '//button[contains(@aria-label, "Apply current filters") or contains(@aria-label, "Aplicar filtro atual") or .//span[normalize-space()="Exibir resultados" or normalize-space()="Show results"]]'
-                ))
-            )
-        except:
-            # Fallback: procura por qualquer botão com texto "Exibir resultados" ou "Show results"
+        show_results_button = None
+        show_results_strategies = [
+            # Strategy 1: aria-label (most reliable)
+            '//button[contains(@aria-label, "Apply current filters") or contains(@aria-label, "Aplicar filtro") or contains(@aria-label, "Mostrar") or contains(@aria-label, "Show")]',
+            # Strategy 2: span text inside button
+            '//button[.//span[normalize-space()="Exibir resultados" or normalize-space()="Show results" or contains(normalize-space(), "Exibir") or contains(normalize-space(), "resultado")]]',
+            # Strategy 3: Primary button in modal footer
+            '//div[contains(@class, "reusable-search-filters-buttons")]//button[contains(@class, "artdeco-button--primary")]',
+            # Strategy 4: Any primary button in filters panel
+            '//div[contains(@class, "search-reusables-filters")]//button[contains(@class, "artdeco-button--primary")]',
+            # Strategy 5: Button with specific data attributes
+            '//button[@data-test-reusables-filters-modal-show-results-button]',
+            # Strategy 6: Generic primary button at bottom of modal
+            '//div[contains(@class, "artdeco-modal__actionbar")]//button[contains(@class, "artdeco-button--primary")]',
+        ]
+        
+        for strategy in show_results_strategies:
             try:
-                show_results_button = driver.find_element(By.XPATH, '//button[.//span[contains(text(), "Exibir") or contains(text(), "Show")]]')
+                show_results_button = WebDriverWait(driver, 3).until(
+                    EC.element_to_be_clickable((By.XPATH, strategy))
+                )
+                print_lg(f"✅ Found 'Show results' button using strategy: {strategy[:60]}...")
+                break
             except:
-                # Último fallback: procura por botão no footer do modal
-                show_results_button = driver.find_element(By.XPATH, '//div[contains(@class, "search-reusables-filters-panel__footer")]//button[@data-control-name="all_filters_apply"]')
+                continue
+        
+        if not show_results_button:
+            print_lg("❌ Could not find 'Show results' button with any strategy")
+            # Try pressing ESC to close modal and continue without applying filters
+            actions.send_keys(Keys.ESCAPE).perform()
+            buffer(1)
+            raise Exception("Failed to find Show results button")
         
         # Final verification: ensure Easy Apply filter is still active
         if easy_apply_only:
@@ -587,12 +606,28 @@ def get_job_main_details(job: WebElement, blacklisted_companies: set, rejected_j
             print_lg(f'Already applied to "{title} | {company}" job. Job ID: {job_id}!')
     except: pass
     try: 
-        if not skip: job_details_button.click()
+        if not skip: 
+            # First, ensure no modal is blocking
+            close_discard_modal()
+            job_details_button.click()
+    except ElementClickInterceptedException as e:
+        print_lg(f'Click intercepted for "{title} | {company}" job. Job ID: {job_id}! Trying to close blocking modal...')
+        # Try to close any blocking modal
+        discard_job()
+        buffer(0.5)
+        try:
+            job_details_button.click()
+        except Exception as retry_e:
+            print_lg(f'Retry click also failed: {retry_e}')
+            skip = True  # Mark as skip to avoid further errors
     except Exception as e:
         print_lg(f'Failed to click "{title} | {company}" job on details button. Job ID: {job_id}!') 
         # print_lg(e)
         discard_job()
-        job_details_button.click() # To pass the error outside
+        try:
+            job_details_button.click()
+        except:
+            skip = True  # Mark as skip if click still fails
     buffer(click_gap)
     return (job_id,title,company,work_location,work_style,skip)
 
@@ -1812,13 +1847,93 @@ def submitted_jobs(job_id: str, title: str, company: str, work_location: str, wo
 
 
 
+# Function to close any open discard confirmation modal
+def close_discard_modal() -> bool:
+    '''
+    Closes the discard confirmation modal if it's open.
+    Returns True if modal was found and closed, False otherwise.
+    '''
+    try:
+        # Check if discard confirmation modal is open
+        discard_modal = driver.find_element(By.XPATH, 
+            '//div[@data-test-modal-id="data-test-easy-apply-discard-confirmation" and @aria-hidden="false"]'
+        )
+        
+        # Strategy 1: Click "Descartar" button inside modal (confirms discard)
+        discard_strategies = [
+            './/button[.//span[normalize-space()="Descartar" or normalize-space()="Discard"]]',
+            './/button[contains(@data-control-name, "discard")]',
+            './/button[contains(@class, "artdeco-button--primary")]',  # Usually the confirm button
+        ]
+        
+        for strategy in discard_strategies:
+            try:
+                btn = discard_modal.find_element(By.XPATH, strategy)
+                btn.click()
+                print_lg(f"✅ Clicked discard button in modal using: {strategy[:50]}")
+                buffer(0.5)
+                return True
+            except:
+                continue
+        
+        # Strategy 2: Press ESC to close modal
+        actions.send_keys(Keys.ESCAPE).perform()
+        print_lg("✅ Pressed ESC to close discard modal")
+        buffer(0.5)
+        return True
+        
+    except NoSuchElementException:
+        return False
+    except Exception as e:
+        print_lg(f"⚠️ Error closing discard modal: {e}")
+        return False
+
 # Function to discard the job application
 def discard_job() -> None:
+    '''
+    Discards the current job application by closing any open modals.
+    Uses multiple strategies to ensure the modal is properly closed.
+    '''
+    # First, try to close any existing discard confirmation modal
+    if close_discard_modal():
+        buffer(0.5)
+        return
+    
+    # Send ESC to trigger discard confirmation
     actions.send_keys(Keys.ESCAPE).perform()
-    # Try both English and Portuguese
-    if not click_button_multilang(driver, ['Descartar', 'Cancelar'], 2):
-        # If button not found, try pressing ESC again
-        actions.send_keys(Keys.ESCAPE).perform()
+    buffer(1)
+    
+    # Now try to confirm the discard
+    discard_button_strategies = [
+        # Strategy 1: Button with span text "Descartar"
+        '//div[@data-test-modal-id="data-test-easy-apply-discard-confirmation"]//button[.//span[normalize-space()="Descartar" or normalize-space()="Discard"]]',
+        # Strategy 2: Primary button in discard modal
+        '//div[@data-test-modal-id="data-test-easy-apply-discard-confirmation"]//button[contains(@class, "artdeco-button--primary")]',
+        # Strategy 3: Any button with discard text
+        '//button[.//span[normalize-space()="Descartar" or normalize-space()="Discard"]]',
+        # Strategy 4: Button with data-control-name
+        '//button[contains(@data-control-name, "discard")]',
+    ]
+    
+    for strategy in discard_button_strategies:
+        try:
+            btn = WebDriverWait(driver, 2).until(
+                EC.element_to_be_clickable((By.XPATH, strategy))
+            )
+            btn.click()
+            print_lg(f"✅ Clicked discard button: {strategy[:50]}...")
+            buffer(0.5)
+            return
+        except:
+            continue
+    
+    # Fallback: Try click_button_multilang
+    if not click_button_multilang(driver, ['Descartar', 'Discard', 'Cancelar', 'Cancel'], 2):
+        # Last resort: press ESC multiple times
+        for _ in range(3):
+            actions.send_keys(Keys.ESCAPE).perform()
+            buffer(0.3)
+        print_lg("⚠️ Used ESC fallback to close modals")
 
 
 

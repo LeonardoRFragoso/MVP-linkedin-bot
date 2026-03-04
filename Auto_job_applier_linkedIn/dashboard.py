@@ -4,6 +4,7 @@ import plotly.express as px
 from pathlib import Path
 import re
 from collections import Counter
+import time
 
 # Configuração da página
 st.set_page_config(
@@ -11,6 +12,12 @@ st.set_page_config(
     page_icon="💼",
     layout="wide"
 )
+
+# Session state para controlar auto-refresh
+if 'auto_refresh' not in st.session_state:
+    st.session_state.auto_refresh = False
+if 'refresh_interval' not in st.session_state:
+    st.session_state.refresh_interval = 5
 
 # Caminhos dos arquivos
 BASE_PATH = Path(__file__).parent

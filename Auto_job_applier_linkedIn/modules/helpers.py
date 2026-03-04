@@ -23,10 +23,17 @@ import pathlib
 from time import sleep
 from random import randint
 from datetime import datetime, timedelta
-from pyautogui import alert
 from pprint import pprint
 
 from config.settings import logs_folder_path
+
+# Try to import alert from pyautogui, fallback to console if unavailable
+try:
+    from pyautogui import alert
+except:
+    def alert(text, title="Alert"):
+        """Fallback alert function for headless environments"""
+        print(f"\n[{title}]\n{text}\n")
 
 
 

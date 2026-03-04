@@ -1,6 +1,6 @@
-2025/12/11-13:08:34.377 31d4 Reusing MANIFEST C:\Users\leonardo.fragoso\OneDrive - INTERNATIONAL CONTAINER TERMINAL SERVICES\Área de Trabalho\Projetos\linkedin-vagas\Auto_job_applier_linkedIn\chrome_profile_linkedin_bot\Default\Local Storage\leveldb/MANIFEST-000001
-2025/12/11-13:08:34.405 31d4 Recovering log #19
-2025/12/11-13:08:34.417 31d4 Reusing old log C:\Users\leonardo.fragoso\OneDrive - INTERNATIONAL CONTAINER TERMINAL SERVICES\Área de Trabalho\Projetos\linkedin-vagas\Auto_job_applier_linkedIn\chrome_profile_linkedin_bot\Default\Local Storage\leveldb/000019.log 
-2025/12/11-13:17:35.955 9394 Level-0 table #24: started
-2025/12/11-13:17:35.970 9394 Level-0 table #24: 25504 bytes OK
-2025/12/11-13:17:35.974 9394 Delete type=0 #19
+2026/03/04-08:21:22.618 f87e Reusing MANIFEST /home/leonardo/dev/MVP-linkedin-bot/Auto_job_applier_linkedIn/chrome_profile_linkedin_bot/Default/Local Storage/leveldb/MANIFEST-000001
+2026/03/04-08:21:22.634 f87e Recovering log #44
+2026/03/04-08:21:22.634 f87e Reusing old log /home/leonardo/dev/MVP-linkedin-bot/Auto_job_applier_linkedIn/chrome_profile_linkedin_bot/Default/Local Storage/leveldb/000044.log 
+2026/03/04-08:23:30.156 f87e Level-0 table #49: started
+2026/03/04-08:23:30.169 f87e Level-0 table #49: 24414 bytes OK
+2026/03/04-08:23:30.191 f87e Delete type=0 #44
