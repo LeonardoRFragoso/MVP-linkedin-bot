@@ -1,23 +1,15 @@
-'''
-Author:     Sai Vignesh Golla
-LinkedIn:   https://www.linkedin.com/in/saivigneshgolla/
-
-Copyright (C) 2024 Sai Vignesh Golla
-
-License:    GNU Affero General Public License
-            https://www.gnu.org/licenses/agpl-3.0.en.html
-            
-GitHub:     https://github.com/GodsScion/Auto_job_applier_linkedIn
-
-version:    24.12.29.12.30
-'''
-
-
 # Imports
 import os
 import csv
 import re
-import pyautogui
+
+# Try to import pyautogui, but handle headless environments gracefully
+try:
+    import pyautogui
+    PYAUTOGUI_AVAILABLE = True
+except Exception as e:
+    PYAUTOGUI_AVAILABLE = False
+    print(f"Warning: pyautogui not available ({e}). GUI dialogs will use console instead.")
 
 # Set CSV field size limit to prevent field size errors
 csv.field_size_limit(1000000)  # Set to 1MB instead of default 131KB
@@ -38,6 +30,9 @@ from config.search import *
 from config.secrets import use_AI, username, password, ai_provider
 from config.settings import *
 
+# Explicit imports to ensure availability in all functions
+from config.questions import cover_letter, linkedin_summary
+
 from modules.open_chrome import *
 from modules.helpers import *
 from modules.clickers_and_finders import *
@@ -51,15 +46,54 @@ if use_AI:
 from typing import Literal
 
 
-pyautogui.FAILSAFE = False
+if PYAUTOGUI_AVAILABLE:
+    pyautogui.FAILSAFE = False
+
+# Helper functions for GUI dialogs that work with or without display
+def show_alert(text, title="Alert"):
+    """Show an alert dialog, fallback to console if display unavailable"""
+    if PYAUTOGUI_AVAILABLE:
+        try:
+            pyautogui.alert(text, title)
+        except:
+            print(f"\n[{title}]\n{text}\n")
+    else:
+        print(f"\n[{title}]\n{text}\n")
+
+def show_confirm(text, title="Confirm", buttons=None):
+    """Show a confirm dialog, fallback to console if display unavailable"""
+    if buttons is None:
+        buttons = ["Yes", "No"]
+    
+    if PYAUTOGUI_AVAILABLE:
+        try:
+            return pyautogui.confirm(text, title, buttons)
+        except:
+            pass
+    
+    print(f"\n[{title}]\n{text}")
+    for i, btn in enumerate(buttons, 1):
+        print(f"{i}. {btn}")
+    
+    while True:
+        try:
+            choice = input("Enter your choice (number): ").strip()
+            idx = int(choice) - 1
+            if 0 <= idx < len(buttons):
+                return buttons[idx]
+        except (ValueError, IndexError):
+            pass
+        print("Invalid choice. Please try again.")
+
 # if use_resume_generator:    from resume_generator import is_logged_in_GPT, login_GPT, open_resume_chat, create_custom_resume
 
 
 #< Global Variables and logics
 
+pause_at_failed_question = False
+pause_before_submit = False
+
 if run_in_background == True:
-    pause_at_failed_question = False
-    pause_before_submit = False
     run_non_stop = False
 
 first_name = first_name.strip()
@@ -302,44 +336,86 @@ def apply_filters() -> None:
         # Garantir que o filtro "Candidatura simplificada" (Easy Apply) esteja ligado na barra superior
         # Esse botão existe fora do modal de "Todos os filtros". Em algumas contas não há o id fixo,
         # então tentamos por id OU por aria-label/texto, com espera explícita.
+        def _dismiss_any_modal():
+            try:
+                overlay = driver.find_element(By.XPATH, '//div[@data-test-modal-container][@aria-hidden="false"]')
+                try:
+                    dismiss_btn = overlay.find_element(By.XPATH, './/button[@aria-label="Dismiss" or @aria-label="Fechar" or contains(@aria-label,"Descartar") or contains(@aria-label,"discard") or contains(@aria-label,"Close")]')
+                    dismiss_btn.click()
+                except Exception:
+                    driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.ESCAPE)
+                buffer(1)
+            except Exception:
+                pass
+
+        _dismiss_any_modal()
+
         if easy_apply_only:
             try:
                 easy_apply_pill = WebDriverWait(driver, 5).until(
-                    EC.presence_of_element_located((
+                    EC.element_to_be_clickable((
                         By.XPATH,
-                        '//*[@id="searchFilter_applyWithLinkedin"]'
-                        ' | //button[contains(@aria-label, "Candidatura simplificada") or contains(@aria-label, "Easy Apply") or contains(normalize-space(), "Candidatura simplificada")]'
+                        '//button[@id="searchFilter_applyWithLinkedin" or contains(@aria-label, "Filtro Candidatura simplificada") or @aria-label="Filtro Candidatura simplificada."]'
                     ))
                 )
-                aria_checked = (easy_apply_pill.get_attribute("aria-checked") or "").lower()
-                if aria_checked != "true":
+                aria_pressed = (easy_apply_pill.get_attribute("aria-checked") or easy_apply_pill.get_attribute("aria-pressed") or "").lower()
+                if aria_pressed != "true":
                     scroll_to_view(driver, easy_apply_pill)
                     easy_apply_pill.click()
+                    buffer(1)
+                    _dismiss_any_modal()
                     print_lg('Clicked top-bar "Candidatura simplificada" filter pill')
             except Exception as e:
-                # Se falhar, continuamos usando o comportamento antigo via modal "Todos os filtros"
                 print_lg('Failed to click top-bar "Candidatura simplificada" filter pill, falling back to All filters modal', e)
 
+        _dismiss_any_modal()
+
         # Em PT-BR o botão é "Todos os filtros". Em EN-US é "All filters".
-        wait.until(EC.presence_of_element_located((
-            By.XPATH,
-            '//button[normalize-space()="All filters" or normalize-space()="Todos os filtros"]'
-        ))).click()
+        try:
+            all_filters_btn = wait.until(EC.element_to_be_clickable((
+                By.XPATH,
+                '//button[normalize-space()="All filters" or normalize-space()="Todos os filtros"]'
+            )))
+            print_lg("✅ Found 'Todos os filtros' button, clicking...")
+            all_filters_btn.click()
+            print_lg("✅ Clicked 'Todos os filtros' button")
+            buffer(2)  # Wait for modal to fully load
+        except Exception as e:
+            print_lg("❌ Failed to find/click 'Todos os filtros' button:", e)
+            raise
+
+        _ptbr = {
+            "Most recent": "Mais recentes", "Most relevant": "Mais relevantes",
+            "Any time": "A qualquer momento", "Past month": "Último mês",
+            "Past week": "Última semana", "Past 24 hours": "Últimas 24 horas",
+            "Internship": "Estágio", "Entry level": "Júnior",
+            "Associate": "Analista", "Mid-Senior level": "Pleno-sênior",
+            "Director": "Diretor", "Executive": "Executivo",
+            "Full-time": "Tempo integral", "Part-time": "Meio período",
+            "Contract": "Contrato", "Temporary": "Temporário",
+            "Volunteer": "Voluntário", "Other": "Outro",
+            "On-site": "Presencial", "Remote": "Remoto", "Hybrid": "Híbrido",
+            "Easy Apply": "Candidatura simplificada",
+            "Under 10 applicants": "Menos de 10 candidaturas",
+            "In your network": "Na sua rede", "Fair Chance Employer": "Empresas que dão segundas chances",
+        }
+        def _loc(text): return _ptbr.get(text, text)
+        def _loc_list(lst): return [_loc(t) for t in lst]
+
+        print_lg(f"🔍 Applying filter: Sort by = {_loc(sort_by)}")
+        wait_span_click(driver, _loc(sort_by))
+        
+        print_lg(f"🔍 Applying filter: Date posted = {_loc(date_posted)}")
+        wait_span_click(driver, _loc(date_posted))
         buffer(recommended_wait)
 
-        wait_span_click(driver, sort_by)
-        wait_span_click(driver, date_posted)
-        buffer(recommended_wait)
-
-        multi_sel_noWait(driver, experience_level) 
+        multi_sel_noWait(driver, _loc_list(experience_level))
         multi_sel_noWait(driver, companies, actions)
         if experience_level or companies: buffer(recommended_wait)
 
-        multi_sel_noWait(driver, job_type)
-        multi_sel_noWait(driver, on_site)
+        multi_sel_noWait(driver, _loc_list(job_type))
+        multi_sel_noWait(driver, _loc_list(on_site))
         if job_type or on_site: buffer(recommended_wait)
-
-        if easy_apply_only: boolean_button_click(driver, actions, "Easy Apply")
         
         multi_sel_noWait(driver, location)
         multi_sel_noWait(driver, industry)
@@ -360,16 +436,40 @@ def apply_filters() -> None:
         multi_sel_noWait(driver, commitments)
         if benefits or commitments: buffer(recommended_wait)
 
-        show_results_button: WebElement = driver.find_element(By.XPATH, '//button[contains(@aria-label, "Apply current filters to show")]')
+        # Apply Easy Apply filter LAST to ensure it stays active
+        if easy_apply_only: 
+            boolean_button_click(driver, actions, _loc("Easy Apply"))
+            print_lg('✅ Easy Apply filter set LAST in modal')
+
+        show_results_button: WebElement = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[contains(@aria-label, "Apply current filters to show") or contains(@aria-label, "Aplicar filtro atual para exibir resultados") or .//span[normalize-space()="Exibir resultados" or normalize-space()="Show results"]]')))
+        
+        # Final verification: ensure Easy Apply filter is still active
+        if easy_apply_only:
+            try:
+                easy_apply_pill = driver.find_element(By.XPATH, '//button[@id="searchFilter_applyWithLinkedin" or contains(@aria-label, "Filtro Candidatura simplificada")]')
+                aria_pressed = (easy_apply_pill.get_attribute("aria-checked") or easy_apply_pill.get_attribute("aria-pressed") or "").lower()
+                if aria_pressed != "true":
+                    print_lg('❌ Easy Apply filter was deactivated, reactivating...')
+                    easy_apply_pill.click()
+                    buffer(1)
+                else:
+                    print_lg('✅ Easy Apply filter confirmed active')
+            except Exception as e:
+                print_lg('Could not verify Easy Apply filter status:', e)
+        
         show_results_button.click()
+        buffer(3)
+        
+        WebDriverWait(driver, 15).until(EC.presence_of_all_elements_located((By.XPATH, '//div[@data-job-id]')))
+        buffer(2)
 
         global pause_after_filters
-        if pause_after_filters and "Turn off Pause after search" == pyautogui.confirm("These are your configured search results and filter. It is safe to change them while this dialog is open, any changes later could result in errors and skipping this search run.", "Please check your results", ["Turn off Pause after search", "Look's good, Continue"]):
+        if pause_after_filters and "Turn off Pause after search" == show_confirm("These are your configured search results and filter. It is safe to change them while this dialog is open, any changes later could result in errors and skipping this search run.", "Please check your results", ["Turn off Pause after search", "Look's good, Continue"]):
             pause_after_filters = False
 
     except Exception as e:
         print_lg("Setting the preferences failed!")
-        # print_lg(e)
+        print_lg(e)
 
 
 
@@ -378,9 +478,54 @@ def get_page_info() -> tuple[WebElement | None, int | None]:
     Function to get pagination element and current page number
     '''
     try:
+        # Try multiple approaches to find pagination
+        pagination_element = None
+        
+        # Method 1: Try by classes
         pagination_element = try_find_by_classes(driver, ["jobs-search-pagination__pages", "artdeco-pagination", "artdeco-pagination__pages"])
-        scroll_to_view(driver, pagination_element)
-        current_page = int(pagination_element.find_element(By.XPATH, "//button[contains(@class, 'active')]").text)
+        
+        # Method 2: Try by data-test-id (LinkedIn uses this)
+        if not pagination_element:
+            try:
+                pagination_element = driver.find_element(By.XPATH, "//div[@data-test-pagination-page-container]")
+            except:
+                pass
+        
+        # Method 3: Try by aria-label containing page numbers
+        if not pagination_element:
+            try:
+                pagination_element = driver.find_element(By.XPATH, "//div[contains(@aria-label, 'Paginação') or contains(@aria-label, 'Pagination')]")
+            except:
+                pass
+        
+        # Method 4: Try to find any button with page number
+        if not pagination_element:
+            try:
+                page_buttons = driver.find_elements(By.XPATH, "//button[contains(@aria-label, 'Página') or contains(@aria-label, 'Page')]")
+                if page_buttons:
+                    # Find the container that holds these buttons
+                    pagination_element = page_buttons[0].find_element(By.XPATH, "./ancestor::div[contains(@class, 'pagination') or contains(@class, 'artdeco-pagination')]")
+            except:
+                pass
+        
+        if pagination_element:
+            scroll_to_view(driver, pagination_element)
+            # Try to find current page number
+            try:
+                active_button = pagination_element.find_element(By.XPATH, ".//button[contains(@class, 'active') or @aria-current='page']")
+                current_page = int(active_button.text)
+            except:
+                try:
+                    # Alternative: find button with aria-label indicating current page
+                    active_button = pagination_element.find_element(By.XPATH, ".//button[contains(@aria-label, 'current') or contains(@aria-label, 'atual')]")
+                    current_page = int(active_button.text)
+                except:
+                    # Fallback: assume page 1 if we can't determine
+                    current_page = 1
+        else:
+            print_lg("Failed to find Pagination element, hence couldn't scroll till end!")
+            current_page = None
+            
     except Exception as e:
         print_lg("Failed to find Pagination element, hence couldn't scroll till end!")
         pagination_element = None
@@ -545,6 +690,44 @@ def upload_resume(modal: WebElement, resume: str) -> tuple[bool, str]:
     except:
         return False, "Previous resume"
 
+# Function to upload profile image
+def upload_profile_image(modal: WebElement, image_path: str = "perfil.jpeg") -> bool:
+    '''
+    Upload profile image when requested in Easy Apply forms
+    '''
+    try:
+        # Try to find file input for profile image
+        file_inputs = modal.find_elements(By.XPATH, ".//input[@type='file']")
+        
+        if not file_inputs:
+            print_lg(f"No file input found for profile image")
+            return False
+        
+        # Check if the image file exists
+        full_path = os.path.abspath(image_path)
+        if not os.path.exists(full_path):
+            print_lg(f"Profile image not found at: {full_path}")
+            return False
+        
+        # Try to upload to the first file input (usually profile image)
+        for file_input in file_inputs:
+            try:
+                # Check if this input is for image/photo
+                accept_attr = file_input.get_attribute("accept") or ""
+                if "image" in accept_attr.lower() or accept_attr == "":
+                    file_input.send_keys(full_path)
+                    print_lg(f"✅ Profile image uploaded successfully: {image_path}")
+                    buffer(1)
+                    return True
+            except Exception as e:
+                print_lg(f"Failed to upload to this input: {e}")
+                continue
+        
+        return False
+    except Exception as e:
+        print_lg(f"Failed to upload profile image: {e}")
+        return False
+
 
 # Function to answer common questions for Easy Apply using smart answers
 def answer_common_questions(label: str, answer: str) -> str:
@@ -555,7 +738,7 @@ def answer_common_questions(label: str, answer: str) -> str:
     PRIORITY ORDER: Time/experience questions > Salary > Other smart answers
     '''
     import re
-    from config.questions import smart_answers, years_of_experience, python_experience_years, ci_cd_experience_years, it_experience_years, legal_experience_years, java_experience_years, nodejs_experience_years, reactjs_experience_years, age_started_programming, taxa_hora_pj, cpf_number, english_level
+    from config.questions import smart_answers, years_of_experience, python_experience_years, ci_cd_experience_years, it_experience_years, legal_experience_years, java_experience_years, nodejs_experience_years, reactjs_experience_years, age_started_programming, taxa_hora_pj, cpf_number, english_level, cover_letter, linkedin_summary
     
     # Convert label to lowercase for matching
     label_lower = label.lower()
@@ -614,9 +797,9 @@ def answer_common_questions(label: str, answer: str) -> str:
     
     # PRIORITY 5: English level
     if any(k in label_lower for k in ['nível de inglês', 'english level', 'proficiency in english', 'inglês', 'english']):
-        if 'fluent' in label_lower or 'fluente' in label_lower:
-            print_lg(f"English fluency question: '{label}' -> No (Intermediário)")
-            return "No"  # User is intermediate, not fluent
+        if 'fluent' in label_lower or 'fluente' in label_lower or 'native' in label_lower or 'nativo' in label_lower:
+            print_lg(f"English fluency/native question: '{label}' -> No (Intermediário)")
+            return "No"  # User is intermediate, not fluent/native
         else:
             print_lg(f"English level question: '{label}' -> {english_level}")
             return str(english_level)
@@ -663,220 +846,435 @@ def answer_common_questions(label: str, answer: str) -> str:
     
     # If no match found, return original answer
     return answer
-def answer_questions(modal: WebElement, questions_list: set, work_location: str, job_description: str | None = None ) -> set:
-    # Get all questions from the page
+def get_salary_by_job_level(job_description: str | None = None) -> str:
+    '''
+    Detecta o nível da vaga e tipo de contrato para retornar salário apropriado em REAIS
+    CLT Junior/Pleno: R$ 6.000
+    PJ Junior/Pleno: R$ 8.000
+    CLT Senior/Engenheiro: R$ 8.000
+    PJ Senior/Engenheiro: R$ 10.000
+    '''
+    default_salary = "6000"  # R$ 6.000 CLT padrão
     
-    all_questions = modal.find_elements(By.XPATH, ".//div[@data-test-form-element]")
-    all_list_questions = modal.find_elements(By.XPATH, ".//div[@data-test-text-entity-list-form-component]")
-    all_single_line_questions = modal.find_elements(By.XPATH, ".//div[@data-test-single-line-text-form-component]")
-    all_legacy_questions = modal.find_elements(By.CLASS_NAME, "jobs-easy-apply-form-element")
-    all_questions = all_questions + all_list_questions + all_single_line_questions + all_legacy_questions
+    if not job_description:
+        return default_salary
+    
+    job_desc_lower = job_description.lower()
+    
+    # Detectar nível da vaga
+    is_senior = any(word in job_desc_lower for word in ['senior', 'sênior', 'senhor', 'lead', 'principal', 'staff', 'architect', 'arquiteto'])
+    is_engineer = any(word in job_desc_lower for word in ['engenheiro', 'engineer', 'engineering'])
+    is_junior_pleno = any(word in job_desc_lower for word in ['junior', 'júnior', 'pleno', 'mid-level', 'mid level', 'associate', 'analista'])
+    
+    # Detectar tipo de contrato
+    is_pj = any(word in job_desc_lower for word in ['pj', 'pessoa jurídica', 'pessoa juridica', 'autônomo', 'autonomo', 'freelancer', 'contratado'])
+    is_clt = any(word in job_desc_lower for word in ['clt', 'consolidada', 'consolidado', 'tempo integral', 'full-time', 'fulltime'])
+    
+    # Determinar salário baseado em nível e tipo (valores em R$)
+    if is_senior or is_engineer:
+        if is_pj:
+            return "10000"  # R$ 10.000 PJ Senior
+        else:
+            return "8000"   # R$ 8.000 CLT Senior
+    elif is_junior_pleno:
+        if is_pj:
+            return "8000"   # R$ 8.000 PJ Pleno
+        else:
+            return "6000"   # R$ 6.000 CLT Pleno
+    
+    # Se não conseguir detectar, retorna padrão
+    return default_salary
 
+
+def answer_questions(modal: WebElement, questions_list: set, work_location: str, job_description: str | None = None ) -> set:
+    # NOVA ABORDAGEM: Procurar por inputs/selects/textareas diretamente
+    print_lg("🔍 Iniciando preenchimento de formulário...")
+    
+    # Encontrar todos os inputs, selects e textareas
+    all_inputs = []
+    try:
+        all_inputs.extend(modal.find_elements(By.XPATH, ".//input[@type='text' or @type='number' or @type='email' or @type='tel' or not(@type)]"))
+    except:
+        pass
+    
+    try:
+        all_inputs.extend(modal.find_elements(By.XPATH, ".//textarea"))
+    except:
+        pass
+    
+    try:
+        all_inputs.extend(modal.find_elements(By.XPATH, ".//select"))
+    except:
+        pass
+    
+    # Encontrar todos os containers de perguntas
+    all_questions = []
+    try:
+        all_questions.extend(modal.find_elements(By.XPATH, ".//div[@data-test-form-element]"))
+    except:
+        pass
+    
+    try:
+        all_questions.extend(modal.find_elements(By.XPATH, ".//div[contains(@class, 'artdeco-form-element')]"))
+    except:
+        pass
+    
+    # Remover duplicatas
+    seen = set()
+    unique_questions = []
+    for q in all_questions:
+        try:
+            q_id = q.get_attribute('id') or id(q)
+            if q_id not in seen:
+                seen.add(q_id)
+                unique_questions.append(q)
+        except:
+            unique_questions.append(q)
+    
+    all_questions = unique_questions
+    print_lg(f"✅ Encontrados {len(all_questions)} elementos de pergunta e {len(all_inputs)} inputs/selects")
+
+    # Try to upload profile image if requested
+    try:
+        file_inputs = modal.find_elements(By.XPATH, ".//input[@type='file']")
+        for file_input in file_inputs:
+            try:
+                accept_attr = (file_input.get_attribute("accept") or "").lower()
+                label_text = ""
+                
+                # Try to find associated label
+                try:
+                    label_elem = file_input.find_element(By.XPATH, "./ancestor::div[@data-test-form-element]//label | ./ancestor::div[@data-test-form-element]//h3")
+                    label_text = (label_elem.text or "").lower()
+                except:
+                    pass
+                
+                # Check if this is a profile/photo image field
+                if "image" in accept_attr or "photo" in accept_attr or "profile" in label_text or "foto" in label_text or "imagem" in label_text:
+                    if upload_profile_image(modal, "perfil.jpeg"):
+                        print_lg("✅ Profile image uploaded in answer_questions")
+                        questions_list.add(("profile-image", "perfil.jpeg", "file", ""))
+                        break
+            except Exception as e:
+                print_lg(f"Error checking file input: {e}")
+                continue
+    except Exception as e:
+        print_lg(f"Error processing file inputs: {e}")
+
+    # Processa inputs diretamente
+    processed_inputs = set()
+    
+    for input_elem in all_inputs:
+        try:
+            input_id = input_elem.get_attribute('id') or id(input_elem)
+            if input_id in processed_inputs:
+                continue
+            processed_inputs.add(input_id)
+            
+            # Pula inputs de arquivo
+            if input_elem.get_attribute('type') == 'file':
+                continue
+            
+            # Pula inputs já preenchidos (a menos que overwrite_previous_answers)
+            current_value = input_elem.get_attribute('value') or ""
+            if current_value and not overwrite_previous_answers:
+                print_lg(f"⏭️ Input já preenchido, pulando: {current_value[:50]}")
+                continue
+            
+            # Tenta encontrar o label
+            label_org = "Unknown"
+            try:
+                # Procura por label associado
+                label_id = input_elem.get_attribute('id')
+                if label_id:
+                    label = input_elem.find_element(By.XPATH, f"./ancestor::div//label[@for='{label_id}']")
+                    label_org = label.text
+            except:
+                pass
+            
+            # Se não encontrou label, tenta pelo texto do container
+            if label_org == "Unknown":
+                try:
+                    container = input_elem.find_element(By.XPATH, "./ancestor::div[@data-test-form-element or contains(@class, 'form-element')]")
+                    label_org = container.text.split('\n')[0] if container.text else "Unknown"
+                except:
+                    pass
+            
+            # Pula se não conseguiu encontrar label
+            if label_org == "Unknown" or not label_org.strip():
+                continue
+            
+            label = label_org.lower()
+            answer = ""
+            
+            # Determina a resposta baseado no label
+            # IMPORTANTE: Verificar perguntas específicas ANTES de palavras-chave genéricas
+            
+            # Pergunta específica: "Is your résumé in English?" - espera número (escala)
+            if ('résumé' in label or 'resume' in label or 'cv' in label or 'currículo' in label) and ('english' in label or 'inglês' in label or 'ingles' in label):
+                answer = "10"  # Escala máxima, indicando que sim, está em inglês
+                print_lg(f"✅ Detectado: Pergunta sobre currículo em inglês (escala), respondendo: 10")
+            # Pergunta específica: Salário em USD/Euros (atual ou desejado)
+            elif ('salary' in label or 'salário' in label or 'expectation' in label or 'expectativa' in label or 'compensation' in label or 'ctc' in label) and ('usd' in label or 'dollar' in label or 'euro' in label or 'dólar' in label):
+                # Detecta se é salário ATUAL ou DESEJADO
+                is_current = 'current' in label or 'atual' in label or 'present' in label or 'last' in label or 'último' in label or 'previous' in label
+                
+                if 'hourly' in label or 'hour' in label or 'hora' in label:
+                    # Taxa por hora
+                    answer = "18"  # R$ 100/hora ÷ 5.5 = ~$18/hora
+                    print_lg(f"✅ Detectado: Taxa horária em USD/EUR, respondendo: $18/hour")
+                elif is_current:
+                    # Salário ATUAL: R$ 4.287
+                    if 'euro' in label or 'eur' in label or '€' in label:
+                        answer = "715"  # R$ 4.287 ÷ 6.0 = €715
+                        print_lg(f"✅ Detectado: Salário ATUAL em EUR, respondendo: €715")
+                    else:
+                        answer = "780"  # R$ 4.287 ÷ 5.5 = $780
+                        print_lg(f"✅ Detectado: Salário ATUAL em USD, respondendo: $780")
+                else:
+                    # Salário DESEJADO: R$ 8.000
+                    if 'euro' in label or 'eur' in label or '€' in label:
+                        answer = "1330"  # R$ 8.000 ÷ 6.0 = €1.330
+                        print_lg(f"✅ Detectado: Salário DESEJADO em EUR, respondendo: €1330")
+                    else:
+                        answer = "1450"  # R$ 8.000 ÷ 5.5 = $1.450
+                        print_lg(f"✅ Detectado: Salário DESEJADO em USD, respondendo: $1450")
+            # IMPORTANTE: Perguntas sobre ANOS de experiência com tecnologias (ANTES de Yes/No)
+            elif ('how many years' in label or 'quantos anos' in label or 'years of experience' in label or 'anos de experiência' in label or 'years of work experience' in label) and ('with' in label or 'com' in label or 'in' in label or 'em' in label):
+                # Perguntas sobre anos de experiência com tecnologias específicas
+                answer = "3"  # Padrão: 3 anos
+                
+                # Tecnologias específicas com valores customizados
+                if 'python' in label:
+                    answer = python_experience_years
+                elif 'java' in label and 'javascript' not in label:
+                    answer = java_experience_years
+                elif 'node' in label or 'nodejs' in label:
+                    answer = nodejs_experience_years
+                elif 'react' in label or 'reactjs' in label:
+                    answer = reactjs_experience_years
+                elif 'ci/cd' in label or 'cicd' in label:
+                    answer = ci_cd_experience_years
+                
+                print_lg(f"✅ Detectado: Pergunta sobre ANOS de experiência com tecnologia, respondendo: {answer}")
+            # Perguntas sobre experiência com tecnologia (Do you have experience with X?)
+            elif ('do you have' in label or 'have you' in label or 'você tem' in label or 'possui' in label) and ('experience' in label or 'experiência' in label) and ('with' in label or 'com' in label or 'working with' in label):
+                # Perguntas "Do you have experience with [technology]?" → Sempre "Yes"
+                answer = "Yes"
+                print_lg(f"✅ Detectado: Pergunta sobre experiência com tecnologia (Yes/No), respondendo: Yes")
+            # Perguntas Yes/No genéricas
+            elif any(word in label for word in ['sim', 'yes', 'agree', 'aceita', 'accept', 'eligible', 'autorização', 'are you', 'do you', 'have you', 'can you', 'will you', 'você é', 'você tem', 'você pode']):
+                answer = "Yes"
+            elif any(word in label for word in ['não', 'no', 'disagree', 'decline']):
+                answer = "No"
+            # Perguntas sobre salário
+            elif any(word in label for word in ['salário', 'salary', 'remuneração', 'compensation', 'pay', 'hourly rate', 'taxa horária']):
+                answer = desired_salary
+            # Perguntas sobre experiência (anos)
+            elif any(word in label for word in ['experiência', 'experience', 'anos', 'years']) and not ('english' in label or 'inglês' in label):
+                answer = years_of_experience
+            # Perguntas sobre nome
+            elif any(word in label for word in ['nome', 'name']) and not ('company' in label or 'empresa' in label):
+                answer = full_name
+            # Email
+            elif 'email' in label or 'e-mail' in label:
+                answer = email
+            # Telefone
+            elif any(word in label for word in ['telefone', 'phone', 'celular', 'mobile']):
+                answer = phone_number
+            # Localização
+            elif any(word in label for word in ['cidade', 'city', 'location', 'localização']) and not ('company' in label or 'empresa' in label):
+                answer = current_city if current_city else work_location
+            else:
+                answer = answer_common_questions(label, "")
+            
+            # Preenche o input
+            if answer:
+                try:
+                    input_elem.clear()
+                    input_elem.send_keys(str(answer))
+                    print_lg(f"✅ Preenchido: '{label_org[:60]}' = '{str(answer)[:50]}'")
+                    questions_list.add((label_org, str(answer), "text", current_value))
+                except Exception as e:
+                    print_lg(f"❌ Erro ao preencher '{label_org}': {e}")
+        except StaleElementReferenceException:
+            print_lg("⚠️ Stale element, pulando...")
+            continue
+        except Exception as e:
+            print_lg(f"⚠️ Erro processando input: {e}")
+            continue
+    
+    # Processa selects
+    for select_elem in [s for s in all_inputs if s.tag_name == 'select']:
+        try:
+            # Tenta encontrar o label
+            label_org = "Unknown"
+            try:
+                label_id = select_elem.get_attribute('id')
+                if label_id:
+                    label = select_elem.find_element(By.XPATH, f"./ancestor::div//label[@for='{label_id}']")
+                    label_org = label.text
+            except:
+                pass
+            
+            if label_org == "Unknown":
+                try:
+                    container = select_elem.find_element(By.XPATH, "./ancestor::div[@data-test-form-element]")
+                    label_org = container.text.split('\n')[0] if container.text else "Unknown"
+                except:
+                    pass
+            
+            if label_org == "Unknown" or not label_org.strip():
+                continue
+            
+            label = label_org.lower()
+            answer = "Yes"
+            
+            # Determina resposta
+            if any(word in label for word in ['sim', 'yes', 'agree', 'aceita']):
+                answer = "Yes"
+            elif any(word in label for word in ['não', 'no', 'disagree']):
+                answer = "No"
+            
+            # Seleciona opção
+            try:
+                select = Select(select_elem)
+                select.select_by_visible_text(answer)
+                print_lg(f"✅ Select preenchido: '{label_org[:60]}' = '{answer}'")
+                questions_list.add((label_org, answer, "select", ""))
+            except:
+                # Tenta por valor parcial
+                for option in select.options:
+                    if answer.lower() in option.text.lower():
+                        select.select_by_visible_text(option.text)
+                        print_lg(f"✅ Select preenchido (parcial): '{label_org[:60]}' = '{option.text}'")
+                        questions_list.add((label_org, option.text, "select", ""))
+                        break
+        except Exception as e:
+            print_lg(f"⚠️ Erro em select: {e}")
+            continue
+    
+    # Processa questions containers (para elementos customizados que não foram processados)
+    # SIMPLIFICADO: apenas processa elementos que não foram encontrados antes
     for Question in all_questions:
         try:
-            # Texto completo do bloco da pergunta (caso o label seja difícil de capturar)
+            # Pula se já foi processado
+            question_id = Question.get_attribute('id') or id(Question)
+            if question_id in processed_inputs:
+                continue
+            
+            # Texto completo do bloco da pergunta
             question_block_text = (Question.text or "").strip()
             question_block_lower = question_block_text.lower()
+            
+            if not question_block_text:
+                continue
+            
+            print_lg(f"🔍 Processando pergunta customizada: '{question_block_text[:80]}'")
         except StaleElementReferenceException:
             print_lg("Stale element in question, skipping...")
             continue
 
-        # Tratamento direto para perguntas de pretensão salarial que podem fugir da lógica normal de label
-        if any(word in question_block_lower for word in ['pretensão', 'pretensao', 'salário', 'salario', 'remuneração', 'remuneracao', 'expectativas em termos de remuneração', 'salary expectation', 'salary expectations', 'compensation']):
-            try:
-                input_or_textarea = try_xp(Question, ".//input[not(@type) or @type='text' or @type='number'] | .//textarea", False)
-            except Exception:
-                input_or_textarea = None
-
-            if input_or_textarea:
-                current_value = input_or_textarea.get_attribute("value") or ""
-                if not current_value.strip() or overwrite_previous_answers:
-                    smart_answer = answer_common_questions(question_block_lower, "")
-                    answer_value = smart_answer if smart_answer else "5000"
-                    print_lg(f"DEBUG: Direct salary handler for block '{question_block_text[:80]}', answering: '{answer_value}'")
-                    input_or_textarea.clear()
-                    input_or_textarea.send_keys(str(answer_value))
-                    questions_list.add(("direct-salary:" + question_block_lower, str(answer_value), "text-or-textarea", current_value))
-                    continue
-
-        # Tratamento direto para perguntas de anos de experiência específicas (CI/CD, TI)
-        # Útil quando o label do input não é associado corretamente, mas o texto do bloco contém a pergunta.
-        ci_cd_keywords = ['integração e entrega contínuas', 'integração contínua', 'entrega contínua', 'ci/cd', 'continuous integration', 'continuous delivery']
-        it_keywords = ['tecnologia da informação', 'information technology', 'it experience']
-
-        if any(k in question_block_lower for k in ci_cd_keywords):
-            try:
-                exp_input = try_xp(Question, ".//input[not(@type) or @type='text' or @type='number']", False)
-            except Exception:
-                exp_input = None
-            if exp_input:
-                current_value = exp_input.get_attribute("value") or ""
-                if not current_value.strip() or overwrite_previous_answers:
-                    answer_value = ci_cd_experience_years
-                    print_lg(f"DEBUG: Direct CI/CD experience handler for block '{question_block_text[:80]}', answering: '{answer_value}'")
-                    exp_input.clear()
-                    exp_input.send_keys(str(answer_value))
-                    questions_list.add(("direct-cicd:" + question_block_lower, str(answer_value), "text", current_value))
-                    continue
-
-        if any(k in question_block_lower for k in it_keywords):
-            try:
-                exp_input = try_xp(Question, ".//input[not(@type) or @type='text' or @type='number']", False)
-            except Exception:
-                exp_input = None
-            if exp_input:
-                current_value = exp_input.get_attribute("value") or ""
-                if not current_value.strip() or overwrite_previous_answers:
-                    answer_value = it_experience_years
-                    print_lg(f"DEBUG: Direct IT experience handler for block '{question_block_text[:80]}', answering: '{answer_value}'")
-                    exp_input.clear()
-                    exp_input.send_keys(str(answer_value))
-                    questions_list.add(("direct-it:" + question_block_lower, str(answer_value), "text", current_value))
-                    continue
-
-        # Check if it's a select Question
-        select = try_xp(Question, ".//select", False)
-        if select:
-            try:
-                label_org = "Unknown"
-                try:
-                    label = Question.find_element(By.TAG_NAME, "label")
-                    label_org = label.find_element(By.TAG_NAME, "span").text
-                except: pass
-                answer = 'Yes'
-                label = label_org.lower()
-                select = Select(select)
-                selected_option = select.first_selected_option.text
-                optionsText = []
-                options = '"List of phone country codes"'
-                if label != "phone country code":
-                    optionsText = [option.text for option in select.options]
-                    options = "".join([f' "{option}",' for option in optionsText])
-                prev_answer = selected_option
-                if overwrite_previous_answers or selected_option == "Select an option" or selected_option == "Selecionar opção" or "selecionar" in selected_option.lower():
-                    ##> ------ WINDY_WINDWARD Email:karthik.sarode23@gmail.com - Added fuzzy logic to answer location based questions ------
-                    if 'email' in label or 'phone' in label: 
-                        answer = prev_answer
-                    elif 'gender' in label or 'sex' in label: 
-                        answer = gender
-                    elif 'disability' in label: 
-                        answer = disability_status
-                    # Acceptance questions (Aceita remuneração, aceita benefícios, etc.) - Yes/No dropdowns
-                    elif any(accept_word in label for accept_word in ['aceita', 'accept', 'concorda', 'agree', 'toparia', 'gostaria']):
-                        answer = 'Yes'
-                        print_lg(f"Detected acceptance question, answering: Yes")
-                    # English/Language proficiency questions - match available options
-                    elif ('inglês' in label or 'ingles' in label or 'english' in label) and ('nível' in label or 'nivel' in label or 'level' in label or 'proficiência' in label or 'proficiency' in label):
-                        # Try to find appropriate option based on available choices
-                        options_lower = [opt.lower() for opt in optionsText]
-                        if any('conversação' in opt or 'conversacao' in opt for opt in options_lower):
-                            answer = 'Conversação'
-                        elif any('intermediário' in opt or 'intermediario' in opt for opt in options_lower):
-                            answer = 'Intermediário'
-                        elif any('b2' in opt for opt in options_lower):
-                            answer = 'B2'
-                        elif any('proficiente' in opt or 'proficient' in opt for opt in options_lower):
-                            answer = 'Proficiente'
-                        else:
-                            answer = 'Conversação'  # Default fallback
-                        print_lg(f"Detected English level question, answering: {answer}")
-                    elif 'proficiency' in label: 
-                        answer = 'Professional'
-                    # Availability questions (disponibilidade)
-                    elif 'disponibilidade' in label or 'availability' in label or 'disponível' in label or 'available' in label:
-                        answer = 'Sim'  # Default to Yes for availability
-                        print_lg(f"Detected availability question, answering: Sim")
-                    # Add location handling
-                    elif any(loc_word in label for loc_word in ['location', 'city', 'state', 'country']):
-                        if 'country' in label:
-                            answer = country 
-                        elif 'state' in label:
-                            answer = state
-                        elif 'city' in label:
-                            answer = current_city if current_city else work_location
-                        else:
-                            answer = work_location
-                    # Work authorization Latin America - Yes
-                    elif 'work authorization' in label or 'autorização' in label or 'eligible to work' in label:
-                        if 'latin america' in label or 'américa latina' in label or 'latam' in label:
-                            answer = 'Yes'
-                            print_lg(f"Detected Latin America work auth question, answering: Yes")
-                        else:
-                            answer = 'Yes'
-                            print_lg(f"Detected work authorization question, answering: Yes")
-                    # How did you hear about this opportunity - LinkedIn
-                    elif 'how did you hear' in label or 'como soube' in label or 'como conheceu' in label or 'hear about' in label:
-                        answer = 'LinkedIn'
-                        print_lg(f"Detected referral source question, answering: LinkedIn")
-                    # Graduation year - try to find 2022 in options
-                    elif ('graduation' in label and 'year' in label) or ('year' in label and ('graduate' in label or 'bachelor' in label)) or ('ano' in label and ('formatura' in label or 'graduação' in label)):
-                        # Try to find 2022 in options
-                        if any('2022' in opt for opt in optionsText):
-                            answer = '2022'
-                        else:
-                            answer = '2022'
-                        print_lg(f"Detected graduation year question, answering: 2022")
-                    # GPA / Academic score questions - answer N/A
-                    elif 'gpa' in label or 'grade point' in label or label == 'unknown':
-                        # Check if N/A is an option
-                        if any('n/a' in opt.lower() for opt in optionsText):
-                            answer = 'N/A'
-                        else:
-                            answer = 'N/A'
-                        print_lg(f"Detected GPA question, answering: N/A")
-                    # Technical skills questions - default to Sim (Yes)
-                    elif any(tech in label for tech in ['cloudformation', 'terraform', 'infra as code', 'kubernetes', 'k8s', 
-                        'jenkins', 'azure devops', 'ci/cd', 'cicd', 'gitlab', 'github', 'docker', 'container',
-                        'aws', 'amazon', 'ec2', 's3', 'lambda', 'linux', 'shell', 'python', 'git', 
-                        'postgresql', 'mysql', 'mongodb', 'sql', 'nosql', 'api', 'rest', 'graphql',
-                        'forte conhecimentos', 'conhecimento avançado', 'conhecimento em']):
-                        answer = 'Yes'
-                        print_lg(f"Detected technical skill question, answering: Yes")
-                    # Experience questions with Yes/No options (Possui experiência, Você tem, Já trabalhou, etc.)
-                    elif any(exp_word in label for exp_word in ['possui', 'você tem', 'ja teve', 'já teve', 'já trabalhou', 'ja trabalhou', 'experience', 'experiência', 'trabalharia', 'topa', 'toparia', 'negociável', 'negociavel']):
-                        answer = 'Yes'
-                        print_lg(f"Detected experience/acceptance question, answering: Yes")
-                    else: 
-                        answer = answer_common_questions(label,answer)
-                    try: 
-                        select.select_by_visible_text(answer)
-                    except NoSuchElementException as e:
-                        # Define similar phrases for common answers
-                        possible_answer_phrases = []
-                        if answer == 'Decline':
-                            possible_answer_phrases = ["Decline", "not wish", "don't wish", "Prefer not", "not want"]
-                        elif 'yes' in answer.lower() or answer.lower() == 'sim':
-                            possible_answer_phrases = ["Yes", "Agree", "I do", "I have", "Sim", "sim", "Tenho", "Aceito"]
-                        elif 'no' in answer.lower() or answer.lower() == 'não' or answer.lower() == 'nao':
-                            possible_answer_phrases = ["No", "Disagree", "I don't", "I do not", "Não", "não", "Nao", "nao"]
-                        else:
-                            # Try partial matching for any answer
-                            possible_answer_phrases = [answer]
-                            # Add lowercase and uppercase variants
-                            possible_answer_phrases.append(answer.lower())
-                            possible_answer_phrases.append(answer.upper())
-                            # Try without special characters
-                            possible_answer_phrases.append(''.join(c for c in answer if c.isalnum()))
-                        ##<
-                        foundOption = False
-                        for phrase in possible_answer_phrases:
-                            for option in optionsText:
-                                # Check if phrase is in option or option is in phrase (bidirectional matching)
-                                if phrase.lower() in option.lower() or option.lower() in phrase.lower():
-                                    select.select_by_visible_text(option)
-                                    answer = option
-                                    foundOption = True
-                                    break
-                        if not foundOption:
-                            #TODO: Use AI to answer the question need to be implemented logic to extract the options for the question
-                            print_lg(f'Failed to find an option with text "{answer}" for question labelled "{label_org}", answering randomly!')
-                            select.select_by_index(randint(1, len(select.options)-1))
-                            answer = select.first_selected_option.text
-                            randomly_answered_questions.add((f'{label_org} [ {options} ]',"select"))
-                questions_list.add((f'{label_org} [ {options} ]', answer, "select", prev_answer))
-            except StaleElementReferenceException:
-                print_lg("Stale element in select dropdown, skipping...")
-            continue
+        # Apenas processa elementos que não foram encontrados antes
+        # Tenta encontrar inputs/selects dentro do container
+        try:
+            inputs_in_question = Question.find_elements(By.XPATH, ".//input[@type='text' or @type='number' or @type='email' or @type='tel' or not(@type)] | .//select | .//textarea")
+            if inputs_in_question:
+                for inp in inputs_in_question:
+                    if inp.get_attribute('id') not in processed_inputs:
+                        # Processa este input
+                        label_org = question_block_text.split('\n')[0] if question_block_text else "Unknown"
+                        current_value = inp.get_attribute('value') or ""
+                        
+                        if not current_value or overwrite_previous_answers:
+                            # Determina resposta baseado no texto da pergunta
+                            answer = ""
+                            
+                            # Pergunta específica: currículo em inglês - espera número (escala)
+                            if ('résumé' in question_block_lower or 'resume' in question_block_lower or 'cv' in question_block_lower or 'currículo' in question_block_lower) and ('english' in question_block_lower or 'inglês' in question_block_lower or 'ingles' in question_block_lower):
+                                answer = "10"  # Escala máxima
+                                print_lg(f"✅ Detectado (customizado): Pergunta sobre currículo em inglês (escala), respondendo: 10")
+                            # Pergunta específica: Salário em USD/Euros (atual ou desejado)
+                            elif ('salary' in question_block_lower or 'salário' in question_block_lower or 'expectation' in question_block_lower or 'expectativa' in question_block_lower or 'compensation' in question_block_lower or 'ctc' in question_block_lower) and ('usd' in question_block_lower or 'dollar' in question_block_lower or 'euro' in question_block_lower or 'dólar' in question_block_lower):
+                                # Detecta se é salário ATUAL ou DESEJADO
+                                is_current = 'current' in question_block_lower or 'atual' in question_block_lower or 'present' in question_block_lower or 'last' in question_block_lower or 'último' in question_block_lower or 'previous' in question_block_lower
+                                
+                                if 'hourly' in question_block_lower or 'hour' in question_block_lower or 'hora' in question_block_lower:
+                                    answer = "18"  # Taxa por hora
+                                    print_lg(f"✅ Detectado (customizado): Taxa horária em USD/EUR, respondendo: $18/hour")
+                                elif is_current:
+                                    # Salário ATUAL: R$ 4.287
+                                    if 'euro' in question_block_lower or 'eur' in question_block_lower or '€' in question_block_lower:
+                                        answer = "715"  # €715
+                                        print_lg(f"✅ Detectado (customizado): Salário ATUAL em EUR, respondendo: €715")
+                                    else:
+                                        answer = "780"  # $780
+                                        print_lg(f"✅ Detectado (customizado): Salário ATUAL em USD, respondendo: $780")
+                                else:
+                                    # Salário DESEJADO: R$ 8.000
+                                    if 'euro' in question_block_lower or 'eur' in question_block_lower or '€' in question_block_lower:
+                                        answer = "1330"  # €1.330
+                                        print_lg(f"✅ Detectado (customizado): Salário DESEJADO em EUR, respondendo: €1330")
+                                    else:
+                                        answer = "1450"  # $1.450
+                                        print_lg(f"✅ Detectado (customizado): Salário DESEJADO em USD, respondendo: $1450")
+                            # IMPORTANTE: Perguntas sobre ANOS de experiência com tecnologias (ANTES de Yes/No)
+                            elif ('how many years' in question_block_lower or 'quantos anos' in question_block_lower or 'years of experience' in question_block_lower or 'anos de experiência' in question_block_lower or 'years of work experience' in question_block_lower) and ('with' in question_block_lower or 'com' in question_block_lower or 'in' in question_block_lower or 'em' in question_block_lower):
+                                # Perguntas sobre anos de experiência com tecnologias específicas
+                                answer = "3"  # Padrão: 3 anos
+                                
+                                # Tecnologias específicas
+                                if 'python' in question_block_lower:
+                                    answer = python_experience_years
+                                elif 'java' in question_block_lower and 'javascript' not in question_block_lower:
+                                    answer = java_experience_years
+                                elif 'node' in question_block_lower or 'nodejs' in question_block_lower:
+                                    answer = nodejs_experience_years
+                                elif 'react' in question_block_lower or 'reactjs' in question_block_lower:
+                                    answer = reactjs_experience_years
+                                elif 'ci/cd' in question_block_lower or 'cicd' in question_block_lower:
+                                    answer = ci_cd_experience_years
+                                
+                                print_lg(f"✅ Detectado (customizado): ANOS de experiência com tecnologia, respondendo: {answer}")
+                            # Perguntas sobre experiência com tecnologia (Do you have experience with X?)
+                            elif ('do you have' in question_block_lower or 'have you' in question_block_lower or 'você tem' in question_block_lower or 'possui' in question_block_lower) and ('experience' in question_block_lower or 'experiência' in question_block_lower) and ('with' in question_block_lower or 'com' in question_block_lower or 'working with' in question_block_lower):
+                                # Perguntas "Do you have experience with [technology]?" → Sempre "Yes"
+                                answer = "Yes"
+                                print_lg(f"✅ Detectado (customizado): Experiência com tecnologia (Yes/No), respondendo: Yes")
+                            # Perguntas Yes/No genéricas
+                            elif any(word in question_block_lower for word in ['sim', 'yes', 'agree', 'aceita', 'accept', 'eligible', 'autorização', 'are you', 'do you', 'have you', 'can you', 'will you']):
+                                answer = "Yes"
+                            elif any(word in question_block_lower for word in ['não', 'no', 'disagree', 'decline']):
+                                answer = "No"
+                            # Salário
+                            elif any(word in question_block_lower for word in ['salário', 'salary', 'remuneração', 'compensation', 'hourly rate']):
+                                answer = desired_salary
+                            # Experiência (evitar confusão com inglês)
+                            elif any(word in question_block_lower for word in ['experiência', 'experience', 'anos', 'years']) and not ('english' in question_block_lower or 'inglês' in question_block_lower):
+                                answer = years_of_experience
+                            # Nome
+                            elif any(word in question_block_lower for word in ['nome', 'name']) and not ('company' in question_block_lower):
+                                answer = full_name
+                            else:
+                                answer = answer_common_questions(question_block_lower, "")
+                            
+                            if answer:
+                                try:
+                                    if inp.tag_name == 'select':
+                                        select = Select(inp)
+                                        select.select_by_visible_text(answer)
+                                    else:
+                                        inp.clear()
+                                        inp.send_keys(str(answer))
+                                    print_lg(f"✅ Preenchido (customizado): '{label_org[:60]}' = '{str(answer)[:50]}'")
+                                    questions_list.add((label_org, str(answer), inp.tag_name, current_value))
+                                    processed_inputs.add(inp.get_attribute('id'))
+                                except Exception as e:
+                                    print_lg(f"❌ Erro ao preencher customizado: {e}")
+        except:
+            pass
+        
+        # Código antigo removido para evitar loop infinito - foi substituído pelo novo código acima
         
         # Check if it's a radio Question
         radio = try_xp(Question, './/fieldset[@data-test-form-builder-radio-button-form-component="true"]', False)
@@ -946,7 +1344,10 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
         # Check if it's a text question (try multiple input types)
         text = try_xp(Question, ".//input[@type='text']", False)
         if not text:
-            text = try_xp(Question, ".//input[not(@type) or @type='text' or @type='number' or @type='tel']", False)
+            text = try_xp(Question, ".//input[not(@type) or @type='text' or @type='number' or @type='tel' or @type='email']", False)
+        if not text:
+            text = try_xp(Question, ".//textarea", False)
+            
         if text: 
             do_actions = False
             label_org = "Unknown"
@@ -964,8 +1365,8 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
             # Method 2: If still Unknown, try span with question text
             if not label_org or label_org == "Unknown" or label_org.strip() == "":
                 try:
-                    span = try_xp(Question, ".//span", False)
-                    if span and span.text:
+                    span = try_xp(Question, ".//span[not(contains(@class, 'visually-hidden'))]", False)
+                    if span and span.text and len(span.text) > 3:
                         label_org = span.text
                 except: pass
             
@@ -977,13 +1378,12 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
                         label_org = question_text.split('\n')[0]  # Get first line
                 except: pass
             
-            print_lg(f"DEBUG: Found text input, label extracted: '{label_org[:80]}...'" if len(label_org) > 80 else f"DEBUG: Found text input, label extracted: '{label_org}'")
+            # Skip if label is still empty or too generic
+            if not label_org or label_org == "Unknown" or label_org.strip() == "":
+                continue
             
             answer = "" # years_of_experience
             label = label_org.lower()
-            
-            # DEBUG: Log the question being processed
-            print_lg(f"DEBUG: Processing text question: '{label_org[:100]}...' " if len(label_org) > 100 else f"DEBUG: Processing text question: '{label_org}'")
 
             prev_answer = text.get_attribute("value")
             if not prev_answer or overwrite_previous_answers:
@@ -1356,7 +1756,7 @@ def failed_job(job_id: str, job_link: str, resume: str, date_listed, error: str,
             file.close()
     except Exception as e:
         print_lg("Failed to update failed jobs list!", e)
-        pyautogui.alert("Failed to update the excel of failed jobs!\nProbably because of 1 of the following reasons:\n1. The file is currently open or in use by another program\n2. Permission denied to write to the file\n3. Failed to find the file", "Failed Logging")
+        show_alert("Failed to update the excel of failed jobs!\nProbably because of 1 of the following reasons:\n1. The file is currently open or in use by another program\n2. Permission denied to write to the file\n3. Failed to find the file", "Failed Logging")
 
 
 def screenshot(driver: WebDriver, job_id: str, failedAt: str) -> str:
@@ -1394,7 +1794,7 @@ def submitted_jobs(job_id: str, title: str, company: str, work_location: str, wo
         csv_file.close()
     except Exception as e:
         print_lg("Failed to update submitted jobs list!", e)
-        pyautogui.alert("Failed to update the excel of applied jobs!\nProbably because of 1 of the following reasons:\n1. The file is currently open or in use by another program\n2. Permission denied to write to the file\n3. Failed to find the file", "Failed Logging")
+        show_alert("Failed to update the excel of applied jobs!\nProbably because of 1 of the following reasons:\n1. The file is currently open or in use by another program\n2. Permission denied to write to the file\n3. Failed to find the file", "Failed Logging")
 
 
 
@@ -1437,15 +1837,30 @@ def apply_to_jobs(search_terms: list[str]) -> None:
 
                 # Find all job listings in current page
                 buffer(3)
-                job_listings = driver.find_elements(By.XPATH, "//li[@data-occludable-job-id]")  
+                job_listings = driver.find_elements(By.XPATH, "//li[@data-occludable-job-id]")
+                
+                if not job_listings:
+                    print_lg("No job listings found on this page, moving to next...")
+                    break
 
             
-                for job in job_listings:
+                for job_index in range(len(job_listings)):
                     try:
-                        if keep_screen_awake: pyautogui.press('shiftright')
+                        if keep_screen_awake and PYAUTOGUI_AVAILABLE:
+                            try:
+                                pyautogui.press('shiftright')
+                            except:
+                                pass
                         if current_count >= switch_number: break
                         print_lg("\n-@-\n")
 
+                        # Re-fetch job listings to avoid stale elements
+                        job_listings = driver.find_elements(By.XPATH, "//li[@data-occludable-job-id]")
+                        if job_index >= len(job_listings):
+                            print_lg("Job index out of range, skipping...")
+                            break
+                        
+                        job = job_listings[job_index]
                         job_id,title,company,work_location,work_style,skip = get_job_main_details(job, blacklisted_companies, rejected_jobs)
                     except StaleElementReferenceException:
                         print_lg("Stale element in job listing, skipping to next job...")
@@ -1572,7 +1987,7 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                     # Case 1: Easy Apply Button (supports English and Portuguese)
                     if try_xp(driver, ".//button[contains(@class,'jobs-apply-button') and contains(@class, 'artdeco-button--3') and (contains(@aria-label, 'Easy') or contains(@aria-label, 'Candidatura simplificada') or contains(., 'Candidatura simplificada'))]"):
                         try: 
-                            try:
+                            try: 
                                 errored = ""
                                 modal = find_by_class(driver, "jobs-easy-apply-modal")
                                 # Try clicking Next/Próximo/Avançar button
@@ -1583,33 +1998,73 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                 next_button = True
                                 questions_list = set()
                                 next_counter = 0
+                                previous_questions_hash = None
+                                same_questions_count = 0
                                 while next_button:
                                     next_counter += 1
-                                    if next_counter >= 15: 
+                                    
+                                    if next_counter >= 20: 
                                         if pause_at_failed_question:
                                             screenshot(driver, job_id, "Needed manual intervention for failed question")
-                                            pyautogui.alert("Couldn't answer one or more questions.\nPlease click \"Continue\" once done.\nDO NOT CLICK Back, Next or Review button in LinkedIn.\n\n\n\n\nYou can turn off \"Pause at failed question\" setting in config.py", "Help Needed", "Continue")
+                                            show_alert("Couldn't answer one or more questions.\nPlease click \"Continue\" once done.\nDO NOT CLICK Back, Next or Review button in LinkedIn.\n\n\n\n\nYou can turn off \"Pause at failed question\" setting in config.py", "Help Needed")
                                             next_counter = 1
                                             continue
                                         if questions_list: print_lg("Stuck for one or some of the following questions...", questions_list)
                                         screenshot_name = screenshot(driver, job_id, "Failed at questions")
                                         errored = "stuck"
                                         raise Exception("Seems like stuck in a continuous loop of next, probably because of new questions.")
+                                    
+                                    # NOVO: Fechar modal de descarte se estiver aberto
+                                    try:
+                                        discard_modal = driver.find_element(By.XPATH, '//div[@data-test-modal-id="data-test-easy-apply-discard-confirmation" and @aria-hidden="false"]')
+                                        try:
+                                            close_btn = discard_modal.find_element(By.XPATH, './/button[@aria-label="Dismiss" or @aria-label="Fechar" or contains(@aria-label, "Descartar")]')
+                                            close_btn.click()
+                                            print_lg("✅ Fechado modal de descarte que estava bloqueando")
+                                            buffer(1)
+                                        except:
+                                            actions.send_keys(Keys.ESCAPE).perform()
+                                            print_lg("✅ Pressionado ESC para fechar modal de descarte")
+                                            buffer(1)
+                                    except:
+                                        pass
+                                    # NOVO: Garantir que modal existe antes de usar
+                                    try:
+                                        modal = find_by_class(driver, "jobs-easy-apply-modal")
+                                    except:
+                                        print_lg("⚠️ Modal não encontrado, tentando continuar...")
+                                        break
+                                    
                                     questions_list = answer_questions(modal, questions_list, work_location, job_description=description)
                                     if useNewResume and not uploaded: uploaded, resume = upload_resume(modal, default_resume_path)
+                                    
+                                    # NOVO: Tentar encontrar botão Next com retry
+                                    next_button = None
                                     try: next_button = modal.find_element(By.XPATH, './/span[normalize-space(.)="Revisar"]') 
                                     except NoSuchElementException:  
                                         try: next_button = modal.find_element(By.XPATH, './/span[normalize-space(.)="Rever"]')
                                         except NoSuchElementException:
                                             try: next_button = modal.find_element(By.XPATH, './/button[contains(span, "Avançar") or contains(span, "Próximo")]')
-                                            except NoSuchElementException: next_button = modal.find_element(By.XPATH, './/button[@aria-label="Avançar para a próxima etapa" or contains(@aria-label, "Avançar")]')
-                                    try: next_button.click()
-                                    except ElementClickInterceptedException: break    # Happens when it tries to click Next button in About Company photos section
-                                    except StaleElementReferenceException:
-                                        print_lg("Stale element in next button, refreshing modal...")
-                                        buffer(1)
-                                        modal = find_by_class(driver, "jobs-easy-apply-modal")
-                                        continue
+                                            except NoSuchElementException:
+                                                try: next_button = modal.find_element(By.XPATH, './/button[@aria-label="Avançar para a próxima etapa" or contains(@aria-label, "Avançar")]')
+                                                except NoSuchElementException: next_button = None
+                                    
+                                    if next_button:
+                                        try: next_button.click()
+                                        except ElementClickInterceptedException: 
+                                            print_lg("⚠️ Click interceptado, saindo do loop...")
+                                            break
+                                        except StaleElementReferenceException:
+                                            print_lg("Stale element in next button, refreshing modal...")
+                                            buffer(1)
+                                            try:
+                                                modal = find_by_class(driver, "jobs-easy-apply-modal")
+                                            except:
+                                                break
+                                            continue
+                                    else:
+                                        print_lg("⚠️ Botão Next não encontrado, assumindo fim do formulário")
+                                        break
                                     buffer(click_gap)
 
                             except NoSuchElementException: errored = "nose"
@@ -1622,93 +2077,80 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                 if questions_list and errored != "stuck": 
                                     print_lg("Answered the following questions...", questions_list)
                                     print("\n\n" + "\n".join(str(question) for question in questions_list) + "\n\n")
-                                # Try clicking Review/Revisar/Avançar button (final step before submit)
-                                buffer(2)  # Wait a bit for the page to load
-                                # Try multiple times with different button texts
-                                if not click_button_multilang(driver, ["Revisar", "Rever"], 3):
-                                    # Se Revisar não encontrado, tenta Avançar
-                                    if not click_button_multilang(driver, ["Avançar", "Próximo"], 3):
-                                        # If still not found, might already be on final screen
-                                        print_lg("Review button not found, assuming already on final screen")
-                                cur_pause_before_submit = pause_before_submit
-                                if errored != "stuck" and cur_pause_before_submit:
-                                    decision = pyautogui.confirm('1. Please verify your information.\n2. If you edited something, please return to this final screen.\n3. DO NOT CLICK "Submit Application".\n\n\n\n\nYou can turn off "Pause before submit" setting in config.py\nTo TEMPORARILY disable pausing, click "Disable Pause"', "Confirm your information",["Disable Pause", "Discard Application", "Submit Application"])
-                                    if decision == "Discard Application": raise Exception("Job application discarded by user!")
-                                    pause_before_submit = False if "Disable Pause" == decision else True
-                                    # try_xp(modal, ".//span[normalize-space(.)='Review']")
-                                follow_company(modal)
-                                # Try clicking Submit application/Enviar candidatura button
-                                buffer(1)  # Wait a bit before submitting
-                                
-                                # SCROLL THE MODAL TO THE BOTTOM to ensure submit button is visible
+                                # NOVO: Fechar modal de descarte antes de continuar
                                 try:
-                                    # Try to find the scrollable container inside the modal
-                                    modal_content = modal.find_element(By.XPATH, ".//div[contains(@class, 'jobs-easy-apply-content') or contains(@class, 'artdeco-modal__content')]")
-                                    driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", modal_content)
-                                    print_lg("Scrolled modal content to bottom")
-                                    buffer(0.5)
-                                except:
-                                    # Fallback: scroll the modal itself
+                                    discard_modal = driver.find_element(By.XPATH, '//div[@data-test-modal-id="data-test-easy-apply-discard-confirmation" and @aria-hidden="false"]')
                                     try:
-                                        driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", modal)
-                                        print_lg("Scrolled modal to bottom")
-                                        buffer(0.5)
+                                        close_btn = discard_modal.find_element(By.XPATH, './/button[@aria-label="Dismiss" or @aria-label="Fechar"]')
+                                        close_btn.click()
+                                        print_lg("✅ Fechado modal de descarte antes de submit")
+                                        buffer(1)
                                     except:
-                                        # Final fallback: use JavaScript to scroll to footer
-                                        try:
-                                            footer = modal.find_element(By.XPATH, ".//footer")
-                                            driver.execute_script("arguments[0].scrollIntoView(true);", footer)
-                                            print_lg("Scrolled to modal footer")
-                                            buffer(0.5)
-                                        except:
-                                            print_lg("Could not scroll modal, trying to click anyway...")
-                                
-                                # Try multiple variations of submit button - search in modal first, then driver
-                                submitted = False
-                                
-                                # First try to find the submit button directly in the modal with specific XPath
-                                try:
-                                    submit_btn = modal.find_element(By.XPATH, ".//button[contains(@aria-label, 'Enviar candidatura') or contains(@aria-label, 'Submit application')]")
-                                    scroll_to_view(driver, submit_btn)
-                                    submit_btn.click()
-                                    print_lg("Clicked submit button via aria-label in modal")
-                                    submitted = True
+                                        actions.send_keys(Keys.ESCAPE).perform()
+                                        buffer(1)
                                 except:
                                     pass
                                 
-                                # Try primary button in modal footer
-                                if not submitted:
+                                # Try clicking Review/Revisar/Avançar button (final step before submit)
+                                buffer(2)  # Wait a bit for the page to load
+                                # Refresh modal reference
+                                try:
+                                    modal = find_by_class(driver, "jobs-easy-apply-modal")
+                                except:
+                                    print_lg("⚠️ Modal não encontrado antes de submit, continuando...")
+                                    modal = None
+                                
+                                if modal:
+                                    # Try multiple times with different button texts - SEARCH IN MODAL, NOT DRIVER
+                                    if not click_button_multilang(modal, ["Revisar", "Rever"], 3):
+                                        # Se Revisar não encontrado, tenta Avançar
+                                        if not click_button_multilang(modal, ["Avançar", "Próximo"], 3):
+                                            # If still not found, might already be on final screen
+                                            print_lg("Review button not found, assuming already on final screen")
+                                cur_pause_before_submit = pause_before_submit
+                                if errored != "stuck" and cur_pause_before_submit:
+                                    decision = show_confirm('1. Please verify your information.\n2. If you edited something, please return to this final screen.\n3. DO NOT CLICK "Submit Application".\n\n\n\n\nYou can turn off "Pause before submit" setting in config.py\nTo TEMPORARILY disable pausing, click "Disable Pause"', "Confirm your information",["Disable Pause", "Discard Application", "Submit Application"])
+                                    if decision == "Discard Application": raise Exception("Job application discarded by user!")
+                                    pause_before_submit = False if "Disable Pause" == decision else True
+                                    # try_xp(modal, ".//span[normalize-space(.)='Review']")
+                                if modal:
+                                    follow_company(modal)
+                                # Try clicking Submit application/Enviar candidatura button
+                                buffer(0.3)
+                                
+                                submitted = False
+                                
+                                if modal:
+                                    # Strategy 1: Primary button in footer (fastest - usually the submit button)
                                     try:
                                         submit_btn = modal.find_element(By.XPATH, ".//footer//button[contains(@class, 'artdeco-button--primary')]")
-                                        scroll_to_view(driver, submit_btn)
                                         submit_btn.click()
-                                        print_lg("Clicked primary button in modal footer")
+                                        print_lg("✅ Clicked primary button in footer")
                                         submitted = True
                                     except:
                                         pass
+                                    
+                                    # Strategy 2: Direct click via aria-label
+                                    if not submitted:
+                                        try:
+                                            submit_btn = modal.find_element(By.XPATH, ".//button[contains(@aria-label, 'Enviar candidatura') or contains(@aria-label, 'Submit application')]")
+                                            submit_btn.click()
+                                            print_lg("✅ Clicked submit via aria-label")
+                                            submitted = True
+                                        except:
+                                            pass
+                                    
+                                    # Strategy 3: Button by span text
+                                    if not submitted:
+                                        try:
+                                            submit_btn = modal.find_element(By.XPATH, ".//button[.//span[normalize-space()='Enviar candidatura' or normalize-space()='Submit application']]")
+                                            submit_btn.click()
+                                            print_lg("✅ Clicked submit via span text")
+                                            submitted = True
+                                        except:
+                                            pass
                                 
-                                # Try to find button by span text inside modal
-                                if not submitted:
-                                    try:
-                                        submit_btn = modal.find_element(By.XPATH, ".//button[.//span[contains(text(), 'Enviar candidatura') or contains(text(), 'Submit application')]]")
-                                        scroll_to_view(driver, submit_btn)
-                                        submit_btn.click()
-                                        print_lg("Clicked submit button via span text in modal")
-                                        submitted = True
-                                    except:
-                                        pass
-                                
-                                # Fallback to click_button_multilang in modal
-                                if not submitted and click_button_multilang(modal, ["Enviar candidatura", "Enviar"], 3):
-                                    submitted = True
-                                elif not submitted and click_button_multilang(driver, ["Enviar candidatura", "Enviar"], 3):
-                                    submitted = True
-                                elif not submitted and click_button_multilang(driver, ["Salvar", "Enviar"], 3):
-                                    submitted = True
-                                elif not submitted and click_button_multilang(driver, ["Concluir", "Finalizar"], 3):
-                                    submitted = True
-                                
-                                if submitted: 
+                                if submitted and modal: 
                                     date_applied = datetime.now()
                                     buffer(1.5)  # Wait for confirmation modal to appear
                                     # Try multiple variations for Done button
@@ -1743,7 +2185,7 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                     if not done_clicked and not click_button_multilang(driver, ["Concluído", "Fechar", "OK"], 2): 
                                         actions.send_keys(Keys.ESCAPE).perform()
                                         print_lg("Pressed ESC to close modal")
-                                elif errored != "stuck" and cur_pause_before_submit and "Yes" in pyautogui.confirm("You submitted the application, didn't you 😒?", "Failed to find Submit Application!", ["Yes", "No"]):
+                                elif errored != "stuck" and cur_pause_before_submit and "Yes" in show_confirm("You submitted the application, didn't you 😒?", "Failed to find Submit Application!", ["Yes", "No"]):
                                     date_applied = datetime.now()
                                     click_button_multilang(driver, ["Concluído", "Fechar"], 2)
                                 else:
@@ -1785,10 +2227,48 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                     print_lg("Couldn't find pagination element, probably at the end page of results!")
                     break
                 try:
-                    pagination_element.find_element(By.XPATH, f"//button[@aria-label='Page {current_page+1}']").click()
-                    print_lg(f"\n>-> Now on Page {current_page+1} \n")
-                except NoSuchElementException:
-                    print_lg(f"\n>-> Didn't find Page {current_page+1}. Probably at the end page of results!\n")
+                    next_page = current_page + 1
+                    # Try multiple XPath patterns for next page button
+                    next_page_button = None
+                    
+                    # Method 1: English aria-label
+                    try:
+                        next_page_button = pagination_element.find_element(By.XPATH, f".//button[@aria-label='Page {next_page}']")
+                    except:
+                        pass
+                    
+                    # Method 2: Portuguese aria-label
+                    if not next_page_button:
+                        try:
+                            next_page_button = pagination_element.find_element(By.XPATH, f".//button[@aria-label='Página {next_page}']")
+                        except:
+                            pass
+                    
+                    # Method 3: Button with text equal to page number
+                    if not next_page_button:
+                        try:
+                            next_page_button = pagination_element.find_element(By.XPATH, f".//button[normalize-space()='{next_page}']")
+                        except:
+                            pass
+                    
+                    # Method 4: Find by data-test-pagination-page
+                    if not next_page_button:
+                        try:
+                            next_page_button = pagination_element.find_element(By.XPATH, f".//button[@data-test-pagination-page='{next_page}']")
+                        except:
+                            pass
+                    
+                    if next_page_button:
+                        scroll_to_view(driver, next_page_button)
+                        next_page_button.click()
+                        print_lg(f"\n>-> Now on Page {next_page} \n")
+                        buffer(2)  # Wait for page to load
+                    else:
+                        print_lg(f"\n>-> Didn't find Page {next_page}. Probably at the end page of results!\n")
+                        break
+                        
+                except Exception as e:
+                    print_lg(f"\n>-> Error navigating to Page {current_page+1}: {e}\n")
                     break
 
         except StaleElementReferenceException as e:
@@ -1857,7 +2337,7 @@ def main() -> None:
         validate_config()
         
         if not os.path.exists(default_resume_path):
-            pyautogui.alert(text='Your default resume "{}" is missing! Please update it\'s folder path "default_resume_path" in config.py\n\nOR\n\nAdd a resume with exact name and path (check for spelling mistakes including cases).\n\n\nFor now the bot will continue using your previous upload from LinkedIn!'.format(default_resume_path), title="Missing Resume", button="OK")
+            show_alert('Your default resume "{}" is missing! Please update it\'s folder path "default_resume_path" in config.py\n\nOR\n\nAdd a resume with exact name and path (check for spelling mistakes including cases).\n\n\nFor now the bot will continue using your previous upload from LinkedIn!'.format(default_resume_path), "Missing Resume")
             useNewResume = False
         
         # Login to LinkedIn
@@ -1917,7 +2397,7 @@ def main() -> None:
         print_lg("Browser window closed or session is invalid. Exiting.", e)
     except Exception as e:
         critical_error_log("In Applier Main", e)
-        pyautogui.alert(e,alert_title)
+        show_alert(str(e), alert_title)
     finally:
         print_lg("\n\nTotal runs:                     {}".format(total_runs))
         print_lg("Jobs Easy Applied:              {}".format(easy_applied_count))
@@ -1942,11 +2422,11 @@ def main() -> None:
             "The only limit to our realization of tomorrow will be our doubts of today. - Franklin D. Roosevelt"
             ])
         msg = f"\n{quote}\n\n\nBest regards,\nSai Vignesh Golla\nhttps://www.linkedin.com/in/saivigneshgolla/\n\n"
-        pyautogui.alert(msg, "Exiting..")
+        show_alert(msg, "Exiting..")
         print_lg(msg,"Closing the browser...")
         if tabs_count >= 10:
             msg = "NOTE: IF YOU HAVE MORE THAN 10 TABS OPENED, PLEASE CLOSE OR BOOKMARK THEM!\n\nOr it's highly likely that application will just open browser and not do anything next time!" 
-            pyautogui.alert(msg,"Info")
+            show_alert(msg, "Info")
             print_lg("\n"+msg)
         ##> ------ Yang Li : MARKYangL - Feature ------
         if use_AI and aiClient:
