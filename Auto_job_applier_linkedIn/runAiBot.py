@@ -1164,6 +1164,14 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
                     else:
                         answer = "1450"  # R$ 8.000 ÷ 5.5 = $1.450
                         print_lg(f"✅ Detectado: Salário DESEJADO em USD, respondendo: $1450")
+            # IMPORTANTE: "How long have you been working with X?" - espera número decimal
+            elif ('how long' in label and 'working with' in label) or ('how long have' in label and 'been' in label):
+                answer = "3"  # Padrão: 3 anos
+                print_lg(f"✅ Detectado: 'How long working with' (decimal), respondendo: 3")
+            # IMPORTANTE: "What's your rate in USD?" - taxa/hora em USD
+            elif ('rate' in label and 'usd' in label) or ('taxa' in label and 'hora' in label):
+                answer = "25"  # $25/hora
+                print_lg(f"✅ Detectado: Taxa/hora em USD, respondendo: $25")
             # IMPORTANTE: Perguntas sobre ANOS de experiência com tecnologias (ANTES de Yes/No)
             elif ('how many years' in label or 'quantos anos' in label or 'years of experience' in label or 'anos de experiência' in label or 'years of work experience' in label) and ('with' in label or 'com' in label or 'in' in label or 'em' in label):
                 # Perguntas sobre anos de experiência com tecnologias específicas
@@ -2335,12 +2343,31 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                                             # Se encontrou um span, clicar no botão pai
                                             if next_button.tag_name == 'span':
                                                 parent_button = next_button.find_element(By.XPATH, './ancestor::button')
+                                                print_lg(f"🖱️ Clicando no botão pai do span...")
                                                 parent_button.click()
+                                                print_lg(f"✅ Clicou no botão pai com sucesso")
                                             else:
+                                                print_lg(f"🖱️ Clicando diretamente no botão...")
                                                 next_button.click()
+                                                print_lg(f"✅ Clicou no botão com sucesso")
+                                            buffer(1)  # Aguardar página carregar após clique
                                         except ElementClickInterceptedException: 
                                             print_lg("⚠️ Click interceptado, saindo do loop...")
                                             break
+                                        except Exception as click_error:
+                                            print_lg(f"⚠️ Erro ao clicar: {click_error}")
+                                            # Tentar clicar via JavaScript como fallback
+                                            try:
+                                                if next_button.tag_name == 'span':
+                                                    parent_button = next_button.find_element(By.XPATH, './ancestor::button')
+                                                    driver.execute_script("arguments[0].click();", parent_button)
+                                                else:
+                                                    driver.execute_script("arguments[0].click();", next_button)
+                                                print_lg("✅ Clicou via JavaScript")
+                                                buffer(1)
+                                            except Exception as js_error:
+                                                print_lg(f"⚠️ Erro ao clicar via JS: {js_error}")
+                                                break
                                         except StaleElementReferenceException:
                                             print_lg("Stale element in next button, refreshing modal...")
                                             buffer(1)
