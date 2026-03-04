@@ -1193,14 +1193,22 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
                     # Input normal - responder Yes/No
                     answer = "Yes"
                     print_lg(f"✅ Detectado: Pergunta sobre experiência com tecnologia (Yes/No), respondendo: Yes")
+            # IMPORTANTE: Perguntas sobre SALÁRIO PJ/CLT - detectar ANTES de Yes/No genérico
+            elif any(word in label for word in ['pretensão salarial', 'salário', 'salary', 'remuneração', 'compensation', 'pay', 'hourly rate', 'taxa horária']):
+                if 'pj' in label or 'regime pj' in label or 'pessoa jurídica' in label or 'pessoa juridica' in label:
+                    answer = "8000"
+                    print_lg(f"✅ Detectado: Salário PJ, respondendo: 8000")
+                elif 'clt' in label or 'carteira' in label:
+                    answer = "5000"
+                    print_lg(f"✅ Detectado: Salário CLT, respondendo: 5000")
+                else:
+                    answer = desired_salary
+                    print_lg(f"✅ Detectado: Salário genérico, respondendo: {desired_salary}")
             # Perguntas Yes/No genéricas
             elif any(word in label for word in ['sim', 'yes', 'agree', 'aceita', 'accept', 'eligible', 'autorização', 'are you', 'do you', 'have you', 'can you', 'will you', 'você é', 'você tem', 'você pode']):
                 answer = "Yes"
             elif any(word in label for word in ['não', 'no', 'disagree', 'decline']):
                 answer = "No"
-            # Perguntas sobre salário
-            elif any(word in label for word in ['salário', 'salary', 'remuneração', 'compensation', 'pay', 'hourly rate', 'taxa horária']):
-                answer = desired_salary
             # Perguntas sobre experiência (anos)
             elif any(word in label for word in ['experiência', 'experience', 'anos', 'years']) and not ('english' in label or 'inglês' in label):
                 answer = years_of_experience
